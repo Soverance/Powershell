@@ -1,6 +1,9 @@
 # Scott McCutchen
 # soverance.com
+#
 # Creates a new Azure Resource Manager VM from a pre-existing VHD storage disk
+# You must have the Azure Powershell Module installed,
+# and have logged into your Azure subscription using the Login-AzureRmAccount command
 
 # Initial Configuration
 $location = "eastus"

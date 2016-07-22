@@ -1,3 +1,6 @@
+# Scott McCutchen
+# soverance.com
+#
 # Script will open an FTP request on a server using the supplied credentials,
 # then UPLOAD and OVERWRITE the specified file.
 # This script transmits credentials using insecure protocols.
