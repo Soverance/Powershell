@@ -30,17 +30,6 @@ function SetDefaults ()
 	Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
 	Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
 	
-	# Define trueSKY local source paths
-	$trueSKYsourceSimul = "U:/UnrealEngine-4.12/Engine/Binaries/ThirdParty/Simul/*"
-	$trueSKYsourceResources = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/Resources/*"
-	$trueSKYsourceContent = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/Content/*"
-	$trueSKYsourceShaderbin = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/shaderbin/*"
-
-	# Define trueSKY local destination paths
-	$trueSKYdestinationSimul = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Binaries/ThirdParty/Simul/"
-	$trueSKYdestinationResources = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Resources/"
-	$trueSKYdestinationContent = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Content/"
-	$trueSKYdestinationShaderbin = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/shaderbin/"
 }
 
 SetDefaults
@@ -78,8 +67,21 @@ function CopyItem ($source, $destination)
 	$capturedErrors | foreach-object { if ($_ -notmatch "already exists") { write-error $_ } }
 }
 
-function TrueSKYCheckAndCopy ()
+function TrueSKYCheckCopy ()
 {
+	# Define trueSKY local source paths
+	$trueSKYsourceSimul = "U:/UnrealEngine-4.12/Engine/Binaries/ThirdParty/Simul/*"
+	$trueSKYsourceResources = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/Resources/*"
+	$trueSKYsourceContent = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/Content/*"
+	$trueSKYsourceShaderbin = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/shaderbin/*"
+
+	# Define trueSKY local destination paths
+	$trueSKYdestinationSimul = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Binaries/ThirdParty/Simul/"
+	$trueSKYdestinationResources = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Resources/"
+	$trueSKYdestinationContent = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Content/"
+	$trueSKYdestinationShaderbin = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/shaderbin/"
+
+	
 	# Move Simul trueSKY files into the Build Archive
 	# Test if the path exists, if not, create it, then copy the files.
 
@@ -129,9 +131,9 @@ function TrueSKYCheckAndCopy ()
 	}
 }
 
-function CopyTrueSKY ()
+function TrueSKYcopy ()
 {
-	TrueSKYCheckAndCopy
+	TrueSKYCheckCopy
 	
 	if($?)
 	{
@@ -143,7 +145,7 @@ function CopyTrueSKY ()
 	}
 }
 
-CopyTrueSKY
+TrueSKYcopy
 
 
 
