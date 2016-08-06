@@ -12,14 +12,16 @@ function SetDefaults ()
 	$Platform2 = "XboxOne"
 
 	# Define maps to package
-	$Map1 = "MainMenu"
-	$Map2 = "Arcadia_Main"
-	$Map3 = "ShiitakeTemple_Main"
-	$Map4 = "VulcanShrine_Main"
-	$Map5 = "BorealCore_Main"
-	$Map6 = "Yggdrasil_Main"
-	$Map7 = "EmpyreanGardens_Main"
-	$Map8 = "CelestialNexus_Main"
+	$Map1 = "Ethereal"
+	$Map2 = "Loading"
+	$Map3 = "MainMenu"
+	$Map4 = "Arcadia"
+	$Map5 = "ShiitakeTemple"
+	$Map6 = "VulcanShrine"
+	$Map7 = "BorealCore"
+	$Map8 = "Yggdrasil"
+	$Map9 = "EmpyreanGardens"
+	$Map10 = "CelestialNexus"
 
 	Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
 	Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
@@ -29,32 +31,54 @@ function SetDefaults ()
 	Write-Host "Set to cook ${Map6}." -foregroundcolor black -backgroundcolor cyan
 	Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
 	Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
 	
 }
 
-SetDefaults
+
 
 # Build Functions
-function BuildWindows ()
+
+# Windows 64-bit OnlineSubsystem = Steam
+function BuildSteam ()
 {
 	# Navigate to the local path where the Unreal automation tool is located
 	cd U:/UnrealEngine-4.12/Engine/Build/BatchFiles
-	Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -nativizeAssets -archive -archivedirectory="G:/EtherealBuilds/PC"
 
 	if($?)
 	{
-		Write-Host "Ethereal Win64 Nightly Build Successful." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Ethereal Steam Nightly Build Successful." -foregroundcolor black -backgroundcolor cyan
 	}
 	else
 	{
-		Write-Host "Ethereal Win64 Nightly Build Failed." -foregroundcolor white -backgroundcolor red
+		Write-Host "Ethereal Steam Nightly Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
 	}
 }
 
-BuildWindows
+# Xbox One OnlineSubsystem = Xbox Live
+function BuildXbox ()
+{
+	# Navigate to the local path where the Unreal automation tool is located
+	cd U:/UnrealEngine-4.12/Engine/Build/BatchFiles
+
+	# Once there, run the cook and compile the build for Win64
+	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -nativizeAssets -archive -archivedirectory="G:/EtherealBuilds/Xbox"
+
+	if($?)
+	{
+		Write-Host "Ethereal Xbox One Nightly Build Successful." -foregroundcolor black -backgroundcolor cyan
+	}
+	else
+	{
+		Write-Host "Ethereal Xbox One Nightly Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
+	}
+}
+
+
 
 
 # Handle copying Simul trueSKY files into the archive.
@@ -145,7 +169,16 @@ function TrueSKYcopy ()
 	}
 }
 
+
+SetDefaults
+
+Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
+
+BuildSteam
+
 TrueSKYcopy
+
+BuildXbox
 
 
 
