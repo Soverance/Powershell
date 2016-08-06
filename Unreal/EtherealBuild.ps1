@@ -3,6 +3,14 @@
 #
 # Automate the nightly packaging of Ethereal Legends.
 # This script should be run as a scheduled task each night.
+#
+# Builds for the following platforms:
+#
+# Windows PC 64-bit
+# Xbox One
+#
+# Ethereal Legends uses the trueSKY middleware provided by Simul, 
+# so this script will also migrate those files into the build directory as necessary.
 
 # Set Default Definitions
 function SetDefaults ()
@@ -35,8 +43,6 @@ function SetDefaults ()
 	Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
 	
 }
-
-
 
 # Build Functions
 
@@ -77,9 +83,6 @@ function BuildXbox ()
 		Write-Host "Ethereal Xbox One Nightly Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
 	}
 }
-
-
-
 
 # Handle copying Simul trueSKY files into the archive.
 # trueSKY local file paths are defined in the SetDefaults() function.
@@ -155,6 +158,7 @@ function TrueSKYCheckCopy ()
 	}
 }
 
+# Actually run the trueSKY copy function, and ensure it ran successfully.
 function TrueSKYcopy ()
 {
 	TrueSKYCheckCopy
@@ -169,6 +173,7 @@ function TrueSKYcopy ()
 	}
 }
 
+# MAIN THREAD
 
 SetDefaults
 
