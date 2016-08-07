@@ -1,5 +1,12 @@
 # Powershell
 
-Powershell scripts I've used for various tasks.
+Powershell scripts used for various tasks at Soverance Studios.
 
-File names should be self-explanatory, and comments in each script should more or less explain their purpose.
+- Azure
+	(For tasks related to working with Microsoft Azure)
+- Backups
+	(For tasks related to backups on our network)
+- Office 365
+	(For tasks related to working with Microsoft Office 365)
+- Unreal
+	(For tasks related to working with Unreal Engine)
