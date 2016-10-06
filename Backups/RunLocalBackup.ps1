@@ -43,7 +43,7 @@
 #Variables, only Change here
 $Destination="\\SOV-CLOUD\Repo\Backups" #Copy the Files to this Location
 $Versions="5" #How many of the last Backups you want to keep
-$BackupDirs="U:\UnrealEngine-4.12\Ethereal", "U:\UnrealEngine-4.12\Echosphere", "E:\Github", "E:\Restricted" #What Folders you want to backup
+$BackupDirs="U:\UnrealEngine-4.12\Ethereal", "U:\UnrealEngine-4.12\Echosphere", "E:\Github" #What Folders you want to backup
 $Log="Log.txt" #Log Name
 $LoggingLevel="1" #LoggingLevel only for Output in Powershell Window, 1=smart, 3=Heavy
 

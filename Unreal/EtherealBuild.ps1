@@ -53,7 +53,7 @@ function BuildSteam ()
 	cd U:/UnrealEngine-4.12/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -nativizeAssets -archive -archivedirectory="G:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/PC"
 
 	if($?)
 	{
@@ -72,7 +72,7 @@ function BuildXbox ()
 	cd U:/UnrealEngine-4.12/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -nativizeAssets -archive -archivedirectory="G:/EtherealBuilds/Xbox"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/Xbox"
 
 	if($?)
 	{
@@ -183,7 +183,7 @@ BuildSteam
 
 TrueSKYcopy
 
-BuildXbox
+#BuildXbox
 
 
 
