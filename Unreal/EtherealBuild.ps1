@@ -30,6 +30,7 @@ function SetDefaults ()
 	$Map8 = "Yggdrasil"
 	$Map9 = "EmpyreanGardens"
 	$Map10 = "CelestialNexus"
+	$Map11 = "Arena"
 
 	Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
 	Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
@@ -41,7 +42,7 @@ function SetDefaults ()
 	Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
 	Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
 	Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
-	
+	Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
 }
 
 # Build Functions
@@ -50,10 +51,10 @@ function SetDefaults ()
 function BuildSteam ()
 {
 	# Navigate to the local path where the Unreal automation tool is located
-	cd U:/UnrealEngine-4.12/Engine/Build/BatchFiles
+	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/PC"
 
 	if($?)
 	{
@@ -69,10 +70,10 @@ function BuildSteam ()
 function BuildXbox ()
 {
 	# Navigate to the local path where the Unreal automation tool is located
-	cd U:/UnrealEngine-4.12/Engine/Build/BatchFiles
+	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine-4.12/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/Xbox"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/Xbox"
 
 	if($?)
 	{
@@ -97,15 +98,17 @@ function CopyItem ($source, $destination)
 function TrueSKYCheckCopy ()
 {
 	# Define trueSKY local source paths
-	$trueSKYsourceSimul = "U:/UnrealEngine-4.12/Engine/Binaries/ThirdParty/Simul/*"
-	$trueSKYsourceResources = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/Resources/*"
-	$trueSKYsourceContent = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/Content/*"
-	$trueSKYsourceShaderbin = "U:/UnrealEngine-4.12/Engine/Plugins/TrueSkyPlugin/shaderbin/*"
+	$trueSKYsourceSimul = "U:/UnrealEngine/Engine/Binaries/ThirdParty/Simul/*"
+	$trueSKYsourceContent = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/Content/*"
+	$trueSKYsourceDeployContent = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/DeployToContent/*"
+	$trueSKYsourceResources = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/Resources/*"	
+	$trueSKYsourceShaderbin = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/shaderbin/*"
 
 	# Define trueSKY local destination paths
 	$trueSKYdestinationSimul = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Binaries/ThirdParty/Simul/"
-	$trueSKYdestinationResources = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Resources/"
 	$trueSKYdestinationContent = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Content/"
+	$trueSKYdestinationDeployContent = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/DeployToContent/"
+	$trueSKYdestinationResources = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Resources/"	
 	$trueSKYdestinationShaderbin = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/shaderbin/"
 
 	
@@ -123,6 +126,17 @@ function TrueSKYCheckCopy ()
 		Write-Host "${trueSKYdestinationSimul} did not exist and was created."
 		CopyItem $trueSKYsourceSimul $trueSKYdestinationSimul
 	}
+	# Check /DeployToContent/ destination
+	if (test-path $trueSKYdestinationDeployContent)
+	{
+		CopyItem $trueSKYsourceDeployContent $trueSKYdestinationDeployContent
+	}
+	else
+	{
+		New-Item $trueSKYdestinationDeployContent -ItemType Directory -Force
+		Write-Host "${trueSKYdestinationDeployContent} did not exist and was created."
+		CopyItem $trueSKYsourceDeployContent $trueSKYdestinationDeployContent
+	}	
 	# Check /Resources/ destination
 	if (test-path $trueSKYdestinationResources)
 	{
@@ -179,7 +193,7 @@ SetDefaults
 
 Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
 
-BuildSteam
+#BuildSteam
 
 TrueSKYcopy
 
