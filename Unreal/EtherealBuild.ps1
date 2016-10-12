@@ -54,15 +54,15 @@ function BuildSteam ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Debug -serverconfig=Debug -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/PC"
 
 	if($?)
 	{
-		Write-Host "Ethereal Steam Nightly Build Successful." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Ethereal Steam Build Successful." -foregroundcolor black -backgroundcolor cyan
 	}
 	else
 	{
-		Write-Host "Ethereal Steam Nightly Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
+		Write-Host "Ethereal Steam Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
 	}
 }
 
@@ -77,11 +77,11 @@ function BuildXbox ()
 
 	if($?)
 	{
-		Write-Host "Ethereal Xbox One Nightly Build Successful." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Ethereal Xbox One Build Successful." -foregroundcolor black -backgroundcolor cyan
 	}
 	else
 	{
-		Write-Host "Ethereal Xbox One Nightly Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
+		Write-Host "Ethereal Xbox One Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
 	}
 }
 
@@ -105,11 +105,11 @@ function TrueSKYCheckCopy ()
 	$trueSKYsourceShaderbin = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/shaderbin/*"
 
 	# Define trueSKY local destination paths
-	$trueSKYdestinationSimul = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Binaries/ThirdParty/Simul/"
-	$trueSKYdestinationContent = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Content/"
-	$trueSKYdestinationDeployContent = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/DeployToContent/"
-	$trueSKYdestinationResources = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Resources/"	
-	$trueSKYdestinationShaderbin = "G:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/shaderbin/"
+	$trueSKYdestinationSimul = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Binaries/ThirdParty/Simul/"
+	$trueSKYdestinationContent = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Content/"
+	$trueSKYdestinationDeployContent = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/DeployToContent/"
+	$trueSKYdestinationResources = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Resources/"	
+	$trueSKYdestinationShaderbin = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/shaderbin/"
 
 	
 	# Move Simul trueSKY files into the Build Archive
