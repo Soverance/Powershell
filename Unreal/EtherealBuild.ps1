@@ -54,7 +54,7 @@ function BuildSteam ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Debug -serverconfig=Debug -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Debug -serverconfig=Debug -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PC"
 
 	if($?)
 	{
@@ -73,7 +73,7 @@ function BuildXbox ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="G:/EtherealBuilds/Xbox"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/Xbox"
 
 	if($?)
 	{
@@ -193,7 +193,7 @@ SetDefaults
 
 Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
 
-#BuildSteam
+BuildSteam
 
 TrueSKYcopy
 
