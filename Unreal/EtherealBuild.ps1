@@ -1,49 +1,25 @@
+# © 2016 Soverance Studios
 # Scott McCutchen
 # soverance.com
 #
-# Automate the nightly packaging of Ethereal Legends.
-# This script should be run as a scheduled task each night.
+# Automate the build packaging of Ethereal Legends.
 #
 # Builds for the following platforms:
 #
-# Windows PC 64-bit
+# Steam (Windows 64 bit only)
 # Xbox One
+# PlayStation 4
 #
 # Ethereal Legends uses the trueSKY middleware provided by Simul, 
 # so this script will also migrate those files into the build directory as necessary.
 
-# Set Default Definitions
-function SetDefaults ()
-{
-	# Define supported platforms
-	$Platform1 = "Win64"
-	$Platform2 = "XboxOne"
-
-	# Define maps to package
-	$Map1 = "Ethereal"
-	$Map2 = "Loading"
-	$Map3 = "MainMenu"
-	$Map4 = "Arcadia"
-	$Map5 = "ShiitakeTemple"
-	$Map6 = "VulcanShrine"
-	$Map7 = "BorealCore"
-	$Map8 = "Yggdrasil"
-	$Map9 = "EmpyreanGardens"
-	$Map10 = "CelestialNexus"
-	$Map11 = "Arena"
-
-	Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map3}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map4}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map5}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map6}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
-	Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
-}
+# Run the script with the following options to build for a specific platform
+# example:  ./EtherealBuild.ps1 -xbox $true
+param (
+	[bool]$steam = $false,
+	[bool]$xbox = $false,
+	[bool]$ps4 = $false
+)
 
 # Build Functions
 
@@ -54,7 +30,7 @@ function BuildSteam ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Debug -serverconfig=Debug -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PC"
 
 	if($?)
 	{
@@ -85,17 +61,36 @@ function BuildXbox ()
 	}
 }
 
-# Handle copying Simul trueSKY files into the archive.
-# trueSKY local file paths are defined in the SetDefaults() function.
+# PlayStation 4 OnlineSubsystem = PSN
+function BuildPS4 ()
+{
+	# Navigate to the local path where the Unreal automation tool is located
+	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
-# Create a reusable copy function
+	# Once there, run the cook and compile the build for Win64
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=PS4 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PS4"
+
+	if($?)
+	{
+		Write-Host "Ethereal PlayStation 4 Build Successful." -foregroundcolor black -backgroundcolor cyan
+	}
+	else
+	{
+		Write-Host "Ethereal PlayStation 4 Build Failed. Check log files for more information." -foregroundcolor white -backgroundcolor red
+	}
+}
+
+# A reusable file copy function
 function CopyItem ($source, $destination)
 {
 	Copy-Item $source -Destination $destination -Recurse -Force -ErrorVariable capturedErrors -ErrorAction SilentlyContinue
 	$capturedErrors | foreach-object { if ($_ -notmatch "already exists") { write-error $_ } }
 }
 
-function TrueSKYCheckCopy ()
+# Handle copying Simul trueSKY files into the archive.
+# trueSKY paths in this script must be updated manually to account for configuration changes.
+# Console builds are not required to copy trueSKY files in this manner. See trueSKY documentation for more details.
+function TrueSKYPerformCopy ()
 {
 	# Define trueSKY local source paths
 	$trueSKYsourceSimul = "U:/UnrealEngine/Engine/Binaries/ThirdParty/Simul/*"
@@ -175,7 +170,7 @@ function TrueSKYCheckCopy ()
 # Actually run the trueSKY copy function, and ensure it ran successfully.
 function TrueSKYcopy ()
 {
-	TrueSKYCheckCopy
+	TrueSKYPerformCopy
 	
 	if($?)
 	{
@@ -187,17 +182,80 @@ function TrueSKYcopy ()
 	}
 }
 
-# MAIN THREAD
+# MAIN BUILD FUNCTION
+function BuildEthereal ()
+{
+	# Fail and stop if this script was run without a platform parameter
+	if ($steam -eq $false -and $xbox -eq $false -and $ps4 -eq $false)
+	{
+		Write-Host "No Platform specified." -foregroundcolor white -backgroundcolor red
+		break
+	}
+	
+	# Proceed with build if any of the platforms was specified true
+	if ($steam -eq $true -or $xbox -eq $true -or $ps4 -eq $true)
+	{
+		# START!
+		Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
+	
+		# Define maps to package
+		$Map1 = "Ethereal"
+		$Map2 = "Loading"
+		$Map3 = "MainMenu"
+		$Map4 = "Arcadia"
+		$Map5 = "ShiitakeTemple"
+		$Map6 = "VulcanShrine"
+		$Map7 = "BorealCore"
+		$Map8 = "Yggdrasil"
+		$Map9 = "EmpyreanGardens"
+		$Map10 = "CelestialNexus"
+		$Map11 = "Arena"
 
-SetDefaults
+		Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map3}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map4}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map5}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map6}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
+		Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
+	
+		# Handle Steam Platform Build
+		if ($steam -eq $true)
+		{
+			# Build for Win64 Platform
+			BuildSteam
+			
+			# if the BuildSteam function succeeds
+			if ($?)
+			{
+				# Copy the trueSKY files to their appropriate locations
+				TrueSKYcopy
+			}
+		}
+		
+		# Handle Xbox Platform Build
+		if ($xbox -eq $true)
+		{
+			# Build For Xbox Platform
+			BuildXbox
+		}
+		
+		# Handle PS4 Platform Build
+		if ($ps4 -eq $true)
+		{
+			# Build For PS4 Platform
+			BuildPS4
+		}
+	}
+}
 
-Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
-
-BuildSteam
-
-TrueSKYcopy
-
-#BuildXbox
+# MAIN OPERATION :
+# Run the Ethereal Build
+BuildEthereal
 
 
 
