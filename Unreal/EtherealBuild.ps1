@@ -16,9 +16,7 @@
 # Run the script with the following options to build for a specific platform
 # example:  ./EtherealBuild.ps1 -xbox $true
 param (
-	[bool]$steam = $false,
-	[bool]$xbox = $false,
-	[bool]$ps4 = $false
+	[string]$platform = $(throw "-platform is required. Only Win64, Xbox, and PS4 are supported.")
 )
 
 # Build Functions
@@ -30,7 +28,7 @@ function BuildSteam ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -compile -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PC"
 
 	if($?)
 	{
@@ -48,8 +46,8 @@ function BuildXbox ()
 	# Navigate to the local path where the Unreal automation tool is located
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
-	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/Xbox"
+	# Once there, run the cook and compile the build for Xbox One
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Shipping -serverconfig=Shipping -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -compile -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/Xbox"
 
 	if($?)
 	{
@@ -67,8 +65,8 @@ function BuildPS4 ()
 	# Navigate to the local path where the Unreal automation tool is located
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
-	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=PS4 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PS4"
+	# Once there, run the cook and compile the build for PlayStation 4
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=PS4 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -compile -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PS4"
 
 	if($?)
 	{
@@ -185,71 +183,60 @@ function TrueSKYcopy ()
 # MAIN BUILD FUNCTION
 function BuildEthereal ()
 {
-	# Fail and stop if this script was run without a platform parameter
-	if ($steam -eq $false -and $xbox -eq $false -and $ps4 -eq $false)
-	{
-		Write-Host "No Platform specified." -foregroundcolor white -backgroundcolor red
-		break
-	}
+	# START!
+	Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
 	
-	# Proceed with build if any of the platforms was specified true
-	if ($steam -eq $true -or $xbox -eq $true -or $ps4 -eq $true)
-	{
-		# START!
-		Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
-	
-		# Define maps to package
-		$Map1 = "Ethereal"
-		$Map2 = "Loading"
-		$Map3 = "MainMenu"
-		$Map4 = "Arcadia"
-		$Map5 = "ShiitakeTemple"
-		$Map6 = "VulcanShrine"
-		$Map7 = "BorealCore"
-		$Map8 = "Yggdrasil"
-		$Map9 = "EmpyreanGardens"
-		$Map10 = "CelestialNexus"
-		$Map11 = "Arena"
+	# Define maps to package
+	$Map1 = "Ethereal"
+	$Map2 = "Loading"
+	$Map3 = "MainMenu"
+	$Map4 = "Arcadia"
+	$Map5 = "ShiitakeTemple"
+	$Map6 = "VulcanShrine"
+	$Map7 = "BorealCore"
+	$Map8 = "Yggdrasil"
+	$Map9 = "EmpyreanGardens"
+	$Map10 = "CelestialNexus"
+	$Map11 = "Arena"
 
-		Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map3}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map4}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map5}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map6}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
-		Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map3}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map4}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map5}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map6}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
 	
-		# Handle Steam Platform Build
-		if ($steam -eq $true)
-		{
-			# Build for Win64 Platform
-			BuildSteam
-			
-			# if the BuildSteam function succeeds
-			if ($?)
-			{
-				# Copy the trueSKY files to their appropriate locations
-				TrueSKYcopy
-			}
-		}
+	# Handle Steam Platform Build
+	if ($platform -eq "Win64")
+	{
+		# Build for Win64 Platform
+		BuildSteam
 		
-		# Handle Xbox Platform Build
-		if ($xbox -eq $true)
+		# if the BuildSteam function succeeds
+		if ($?)
 		{
-			# Build For Xbox Platform
-			BuildXbox
+			# Copy the trueSKY files to their appropriate locations
+			TrueSKYcopy
 		}
+	}
 		
-		# Handle PS4 Platform Build
-		if ($ps4 -eq $true)
-		{
-			# Build For PS4 Platform
-			BuildPS4
-		}
+	# Handle Xbox Platform Build
+	if ($platform -eq "Xbox")
+	{
+		# Build For Xbox Platform
+		BuildXbox
+	}
+		
+	# Handle PS4 Platform Build
+	if ($platform -eq "PS4")
+	{
+		# Build For PS4 Platform
+		BuildPS4
 	}
 }
 
