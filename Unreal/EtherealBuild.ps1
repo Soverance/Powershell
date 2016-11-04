@@ -28,7 +28,7 @@ function BuildSteam ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -compile -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/PC"
 
 	if($?)
 	{
@@ -47,7 +47,7 @@ function BuildXbox ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Xbox One
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Shipping -serverconfig=Shipping -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -compile -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/Xbox"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Shipping -serverconfig=Shipping -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/Xbox"
 
 	if($?)
 	{
@@ -66,7 +66,7 @@ function BuildPS4 ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for PlayStation 4
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=PS4 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -compile -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PS4"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=PS4 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PS4"
 
 	if($?)
 	{
