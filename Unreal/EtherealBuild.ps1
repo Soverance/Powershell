@@ -47,7 +47,7 @@ function BuildXbox ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Xbox One
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Shipping -serverconfig=Shipping -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/Xbox"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/Xbox"
 
 	if($?)
 	{
@@ -190,7 +190,7 @@ function BuildEthereal ()
 	$Map1 = "Ethereal"
 	$Map2 = "Loading"
 	$Map3 = "MainMenu"
-	$Map4 = "Arcadia"
+	$Map4 = "NewArcadia"
 	$Map5 = "ShiitakeTemple"
 	$Map6 = "VulcanShrine"
 	$Map7 = "BorealCore"
