@@ -16,9 +16,18 @@ foreach($file in $files)
 {
 	# Get all of the file's content
     $content = Get-Content $file.FullName
+	
 	# Write all content back into the file
 	# The WriteAllLines function by default converts to UTF-8
 	[IO.File]::WriteAllLines($file, $content)
-	# Acknowledgement
-	Write-Host "${file} was successfully encoded with UTF-8." -foregroundcolor black -backgroundcolor cyan
+	
+	# Acknowledgement	
+	if($?)
+	{
+		Write-Host "${file} was successfully encoded with UTF-8." -foregroundcolor black -backgroundcolor cyan
+	}
+	else
+	{
+		Write-Host "${file} failed to encoded with UTF-8." -foregroundcolor white -backgroundcolor red
+	}
 }
