@@ -1,4 +1,4 @@
-# Â© 2016 Soverance Studios
+# © 2016 Soverance Studios
 # Scott McCutchen
 # soverance.com
 #
@@ -14,7 +14,7 @@
 # so this script will also migrate those files into the build directory as necessary.
 
 # Run the script with the following options to build for a specific platform
-# example:  ./EtherealBuild.ps1 -xbox $true
+# example:  ./EtherealBuild.ps1 -platform Xbox
 param (
 	[string]$platform = $(throw "-platform is required. Only Win64, Xbox, and PS4 are supported.")
 )
