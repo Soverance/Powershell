@@ -16,7 +16,7 @@
 # Run the script with the following options to build for a specific platform
 # example:  ./EtherealBuild.ps1 -platform Xbox
 param (
-	[string]$platform = $(throw "-platform is required. Only Win64, Xbox, and PS4 are supported.")
+	[string]$platform = $(throw "-platform is required. Only Steam, Xbox, and PS4 are supported.")
 )
 
 # Build Functions
@@ -28,7 +28,7 @@ function BuildSteam ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Win64
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/PC"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=Win64 -clientconfig=Shipping -serverconfig=Shipping -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/PC"
 
 	if($?)
 	{
@@ -212,9 +212,9 @@ function BuildEthereal ()
 	Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
 	
 	# Handle Steam Platform Build
-	if ($platform -eq "Win64")
+	if ($platform -eq "Steam")
 	{
-		# Build for Win64 Platform
+		# Build Win64 for Steam Platform
 		BuildSteam
 		
 		# if the BuildSteam function succeeds
