@@ -183,91 +183,67 @@ function TrueSKYcopy ()
 # MAIN BUILD FUNCTION
 function BuildEthereal ()
 {
-    # Error if this function was called without a platform parameter
-	if (!$platform)
-	{
-		Write-Host "-platform is required. Only Steam, Xbox, and PS4 are supported." -foregroundcolor white -backgroundcolor red
-	}
+	# START!
+	Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
 	
-    # If a platform was specified
-	if ($platform)
-	{
-        # Ensure a valid platform was entered
-        if ($platform -eq "Steam" -or $platform -eq "PS4" -or $platform -eq "Xbox")
-        {
-            # START!
-		    Write-Host "Starting Ethereal Nightly Build... " -foregroundcolor black -backgroundcolor cyan
-	
-		    # Define maps to package
-		    $Map1 = "Ethereal"
-		    $Map2 = "Loading"
-		    $Map3 = "MainMenu"
-		    $Map4 = "NewArcadia"
-    		$Map5 = "ShiitakeTemple"
-	    	$Map6 = "VulcanShrine"
-		    $Map7 = "BorealCore"
-		    $Map8 = "Yggdrasil"
-		    $Map9 = "EmpyreanGardens"
-		    $Map10 = "CelestialNexus"
-		    $Map11 = "Arena"
+	# Define maps to package
+	$Map1 = "Ethereal"
+	$Map2 = "Loading"
+	$Map3 = "MainMenu"
+	$Map4 = "NewArcadia"
+	$Map5 = "ShiitakeTemple"
+	$Map6 = "VulcanShrine"
+	$Map7 = "BorealCore"
+	$Map8 = "Yggdrasil"
+	$Map9 = "EmpyreanGardens"
+	$Map10 = "CelestialNexus"
+	$Map11 = "Arena"
 
-		    Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map3}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map4}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map5}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map6}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
-	    	Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
-		    Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map1}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map2}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map3}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map4}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map5}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map6}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map7}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map8}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map9}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map10}." -foregroundcolor black -backgroundcolor cyan
+	Write-Host "Set to cook ${Map11}." -foregroundcolor black -backgroundcolor cyan
 	
-		    # Handle Steam Platform Build
-		    if ($platform -eq "Steam")
-		    {
-			    # Build Win64 for Steam Platform
-			    BuildSteam
+	# Handle Steam Platform Build
+	if ($platform -eq "Steam")
+	{
+		# Build Win64 for Steam Platform
+		BuildSteam
 		
-			    # if the BuildSteam function succeeds
-			    if ($?)
-			    {
-			    	# Copy the trueSKY files to their appropriate locations
-				    TrueSKYcopy
-			    }
-		    }
+		# if the BuildSteam function succeeds
+		if ($?)
+		{
+			# Copy the trueSKY files to their appropriate locations
+			TrueSKYcopy
+		}
+	}
 		
-		    # Handle Xbox Platform Build
-		    if ($platform -eq "Xbox")
-		    {
-			    # Build For Xbox Platform
-			    BuildXbox
-		    }
+	# Handle Xbox Platform Build
+	if ($platform -eq "Xbox")
+	{
+		# Build For Xbox Platform
+		BuildXbox
+	}
 		
-		    # Handle PS4 Platform Build
-		    if ($platform -eq "PS4")
-		    {
-			    # Build For PS4 Platform
-			    BuildPS4
-		    }
-        }
-        # Error out if an unsupported platform was specified
-        else
-        {
-        Write-Host "You must specify a valid platform. Only Steam, Xbox, and PS4 are supported." -foregroundcolor white -backgroundcolor red
-        }		
-	}	
+	# Handle PS4 Platform Build
+	if ($platform -eq "PS4")
+	{
+		# Build For PS4 Platform
+		BuildPS4
+	}
 }
 
 # MAIN OPERATION :
 # Run the Ethereal Build
 BuildEthereal
 
-if($?)
-{
-	Write-Host "Ethereal build successfully completed." -foregroundcolor black -backgroundcolor cyan
-}
-else
-{
-	Write-Host "Ethereal build failed.  See log for details." -foregroundcolor white -backgroundcolor red
-}
+
+
+
