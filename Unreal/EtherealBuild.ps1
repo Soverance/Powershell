@@ -47,7 +47,7 @@ function BuildXbox ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for Xbox One
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/Xbox"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=XboxOne -clientconfig=Shipping -serverconfig=Shipping -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/Xbox"
 
 	if($?)
 	{
@@ -93,14 +93,12 @@ function TrueSKYPerformCopy ()
 	# Define trueSKY local source paths
 	$trueSKYsourceSimul = "U:/UnrealEngine/Engine/Binaries/ThirdParty/Simul/*"
 	$trueSKYsourceContent = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/Content/*"
-	$trueSKYsourceDeployContent = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/DeployToContent/*"
 	$trueSKYsourceResources = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/Resources/*"	
 	$trueSKYsourceShaderbin = "U:/UnrealEngine/Engine/Plugins/TrueSkyPlugin/shaderbin/*"
 
 	# Define trueSKY local destination paths
 	$trueSKYdestinationSimul = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Binaries/ThirdParty/Simul/"
 	$trueSKYdestinationContent = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Content/"
-	$trueSKYdestinationDeployContent = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/DeployToContent/"
 	$trueSKYdestinationResources = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/Resources/"	
 	$trueSKYdestinationShaderbin = "B:/EtherealBuilds/PC/WindowsNoEditor/Engine/Plugins/TrueSkyPlugin/shaderbin/"
 
