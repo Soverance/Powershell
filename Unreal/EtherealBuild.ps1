@@ -66,7 +66,7 @@ function BuildPS4 ()
 	cd U:/UnrealEngine/Engine/Build/BatchFiles
 
 	# Once there, run the cook and compile the build for PlayStation 4
-	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=PS4 -clientconfig=Development -serverconfig=Development -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -archive -archivedirectory="B:/EtherealBuilds/PS4"
+	./RunUAT BuildCookRun -project="U:/UnrealEngine/Ethereal/Ethereal.uproject" -noP4 -platform=PS4 -clientconfig=Shipping -serverconfig=Shipping -cook -maps=Map1+Map2+Map3+Map4+Map5+Map6+Map7+Map8+Map9+Map10+Map11 -build -stage -pak -package -distribution -archive -archivedirectory="B:/EtherealBuilds/PS4"
 
 	if($?)
 	{
@@ -216,11 +216,14 @@ function BuildEthereal ()
 		BuildSteam
 		
 		# if the BuildSteam function succeeds
-		if ($?)
-		{
+		# if ($?)
+		# {
+            # TrueSKY has been removed from Ethereal Legends for all versions later than 1.2.0.
+            # As such, this function is no longer necessary.
+
 			# Copy the trueSKY files to their appropriate locations
-			TrueSKYcopy
-		}
+			# TrueSKYcopy
+		# }
 	}
 		
 	# Handle Xbox Platform Build

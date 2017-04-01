@@ -66,13 +66,13 @@ function RunSQLDumps ()
 RunSQLDumps
 
 if($?)
-	{
-		Write-Host "INFO :  All backups completed at $LocalBackupPath." -foregroundcolor black -backgroundcolor cyan
-	}
-	else
-	{
-		Write-Host "Backups failed. Check logs for more info." -foregroundcolor white -backgroundcolor red
-	}
+{
+	Write-Host "INFO :  All backups completed at $LocalBackupPath." -foregroundcolor black -backgroundcolor cyan
+}
+else
+{
+	Write-Host "Backups failed. Check logs for more info." -foregroundcolor white -backgroundcolor red
+}
 
 
 
