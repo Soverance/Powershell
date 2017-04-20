@@ -2,6 +2,11 @@
 # soverance.com
 #
 
+# If necessary, test the environment for a pre-existing profile path using the command:  Test-Path $Profile
+# If no profile exists, apply this file as the current profile
+# This file must not be renamed, and is usually located in the following directory:  C:\Users\CurrenUser\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1
+
+
 # Move to our PS working directory
 Set-Location E:\Github\Powershell
 
