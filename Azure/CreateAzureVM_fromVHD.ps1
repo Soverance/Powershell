@@ -28,14 +28,16 @@ $netInterface = New-AzureRmNetworkInterface -Name $netInterfaceName -ResourceGro
 #$netInterface = Get-AzureRmNetworkInterface -Name $netInterfaceName -ResourceGroupName $resourceGroup
 Write-Host "A new Network Interface resource was created in" $resourceGroup 
 
-# Set Local Admin Credentials
-$cred = Get-Credential -Message "Type the user name and password of the local administrator account."
-
 # Initial VM Configuration
 $vmName = "MyVM"
 $vmSize = "Standard_A1"
-$vm = New-AzureRmVMConfig -VMName $vmName -VMSize $vmSize
+$availabilitySet = "My Availability Set Resource ID URL"
+$vm = New-AzureRmVMConfig -VMName $vmName -VMSize $vmSize -AvailabilitySetId $availabilitySet
 Write-Host "Virtual Machine provisioned as" $vmSize 
+
+# Set Local Admin Credentials
+# Unused here, but you'd use this if you were creating a new VHD instead of an existing VHD
+#$cred = Get-Credential -Message "Type the user name and password of the local administrator account."
 
 # Operating System Config
 # Unused here, but you'd use this if you were creating a new VHD instead of an existing VHD
@@ -58,6 +60,6 @@ Write-Host "Source VHD set to " $urlVHD
 $vm = Set-AzureRmVMOSDisk -VM $vm -Name $osDiskName -VhdUri $urlVHD -CreateOption attach -Windows -Caching 'ReadWrite'
 Write-Host "OS Disk added to VM."
 
-$result = New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vm
+$result = New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vm 
 $result
 

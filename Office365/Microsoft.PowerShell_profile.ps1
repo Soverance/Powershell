@@ -8,7 +8,7 @@
 
 
 # Move to our PS working directory
-Set-Location E:\Github\Powershell
+Set-Location D:\Github\Powershell
 
 
 # The following is used to automatically connect to Office 365 services.
