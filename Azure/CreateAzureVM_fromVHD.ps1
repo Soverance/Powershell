@@ -23,7 +23,7 @@ Write-Host "A new Public IP resource was created in" $resourceGroup
 # create a new Network Interface
 Write-Host "Creating new Network Interface..."
 $netInterfaceName = "MyNetInterface"
-$netInterface = New-AzureRmNetworkInterface -Name $netInterfaceName -ResourceGroupName $resourceGroup -Location $location -SubnetID $virtualNetwork.Subnets[0].Id -PublicIpAddressId $pip.Id
+$netInterface = New-AzureRmNetworkInterface -Name $netInterfaceName -ResourceGroupName $resourceGroup -Location $location -SubnetID $virtualNetwork.Subnets[0].Id -PublicIpAddressId $publicIP.Id
 # Use the line below if you already have a Network Interface
 #$netInterface = Get-AzureRmNetworkInterface -Name $netInterfaceName -ResourceGroupName $resourceGroup
 Write-Host "A new Network Interface resource was created in" $resourceGroup 
@@ -63,3 +63,5 @@ Write-Host "OS Disk added to VM."
 $result = New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vm 
 $result
 
+# Occasionally you may need to add one of these resources to an already existing VM
+# If so, you may need to run the Update-AzureRmVM function
