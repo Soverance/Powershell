@@ -12,7 +12,7 @@ param(
     [string]$password = $(throw "-password is required.")
 )
 
-$user = 'info@soverance.com'
+#$user = 'info@soverance.com'
 $pass = ConvertTo-SecureString -String $password -AsPlainText -Force
 
 $creds = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $user, $pass
@@ -26,6 +26,7 @@ Send-MailMessage `
     -SmtpServer 'smtp.office365.com' `
     -From $user `
     -Credential $creds
+    #-Attachments "Path To Attachment.xlsx"
 
 if($?)
 {
