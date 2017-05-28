@@ -1,0 +1,38 @@
+// © 2017 Soverance Studios
+// Scott McCutchen
+// www.soverance.com
+// scott.mccutchen@soverance.com
+// scott.mccutchen@bkv.com
+
+// This is the editable parameters file for WebApp_MySQL.json
+
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+	// Hosting Plan Name - NO SPACES!
+    "hostingPlanName": {
+      "value": "SoveranceWP"
+    },
+	// DATABASE USERNAME
+    "databaseUsername": {
+      "value": "soverance"
+    },
+	// DATABASE PASSWORD
+    "databasePassword": {
+      "value": "Ridill00"
+    },
+	// DATABASE SERVER NAME - It can only be made up of lowercase letters 'a'-'z', the numbers 0-9 and the hyphen. The hyphen may not lead or trail in the name.
+    "databaseServerName": {
+      "value": "sov-db-mysql"
+    },
+	// DATABASE NAME - NO SPECIAL CHARACTERS!
+    "databaseName": {
+      "value": "wordpress"
+    },
+	// WEB APP SKU
+    "sku": {
+      "value": "Standard"
+    }
+  }
+}

@@ -1,0 +1,497 @@
+// © 2017 Soverance Studios
+// Scott McCutchen
+// www.soverance.com
+// scott.mccutchen@soverance.com
+// scott.mccutchen@bkv.com
+
+// This template will deploy a new Azure Web App, with WordPress installed and connected to a MySQL database.
+
+// This template creates the following Azure resources
+
+{
+  /////////////////////////////////////////////
+  // SCHEMA	+ VERSION
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  /////////////////////////////////////////////
+  // PARAMETERS
+  "parameters": {
+    "hostingPlanName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "Free",
+        "Shared",
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "defaultValue": "Free"
+    },
+    "workerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "0"
+    },
+	"databaseDTU":{  
+      "type":"int",
+      "allowedValues":[  
+         50,
+         100
+      ],
+      "defaultValue":50,
+      "metadata":{  
+        "description":"Azure database for MySQL pricing tier"
+      }
+    },  
+    "databaseSkuName":{  
+       "type":"string",
+       "allowedValues":[  
+          "MYSQLB100",
+          "MYSQLB50"
+       ],
+       "defaultValue":"MYSQLB100",
+       "metadata":{  
+         "description":"Azure database for MySQL sku name: MySQL Basic 50 DTU (MYSQLB50) or 100 DTU (MYSQLB100)"
+       }
+    },
+	"databaseSkuSizeMB":{  
+       "type":"int",
+       "allowedValues":[  
+          102400,
+          51200
+       ],
+       "defaultValue":51200,
+       "metadata":{  
+         "description":"Azure database for MySQL Sku Size "
+       }
+    },
+    "databaseSkuTier":{  
+       "type":"string",
+       "allowedValues":[  
+         "Basic"
+       ],
+       "defaultValue":"Basic",
+       "metadata":{  
+         "description":"Azure database for MySQL pricing tier"
+       }
+    },
+    "mysqlVersion":{  
+       "type":"string",
+       "allowedValues":[  
+          "5.6",
+          "5.7"
+       ],
+       "defaultValue":"5.6",
+       "metadata":{  
+         "description":"MySQL version"
+	   }
+    },
+	"databaseServerName": {
+      "type": "string"
+    },
+    "databaseName": {
+      "type": "string"
+    },
+    "databaseUsername": {
+      "type": "string"
+    },
+    "databasePassword": {
+      "type": "string"
+    },
+  },
+  /////////////////////////////////////////////
+  // VARIABLES
+  "variables": {
+    "webSiteName": "[concat('SOV-WP-', uniqueString(resourceGroup().id))]",
+    "dbConnectionString": "[concat('Database=', parameters('databaseName'), ';Data Source=', parameters('databaseServerName'), ';User Id=', parameters('databaseUsername'), ';Password=', parameters('databasePassword'))]"
+  },
+  /////////////////////////////////////////////
+  // RESOURCES
+  "resources": [	
+    //////////////////////
+	// HOSTING PLAN
+    {
+      "apiVersion": "2014-06-01",
+      "name": "[parameters('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "HostingPlan"
+      },
+      "properties": {
+        "name": "[parameters('hostingPlanName')]",
+        "sku": "[parameters('sku')]",
+        "workerSize": "[parameters('workerSize')]",
+        "numberOfWorkers": 1
+      }
+    },
+	//////////////////////
+	// MySQL database
+	{  
+       "apiVersion":"2016-02-01-privatepreview",
+       "kind":"",
+       "location":"[resourceGroup().location]",
+       "name":"[parameters('databaseServerName')]",
+       "properties":{  
+          "version":"[parameters('mysqlVersion')]",
+          "administratorLogin":"[parameters('databaseUsername')]",
+          "administratorLoginPassword":"[parameters('databasePassword')]",
+          "storageMB":"[parameters('databaseSkuSizeMB')]"
+       },
+       "sku":{  
+          "name":"[parameters('databaseSkuName')]",
+          "tier":"[parameters('databaseSkuTier')]",
+          "capacity":"[parameters('databaseDTU')]",
+          "size":"[parameters('databaseSkuSizeMB')]",
+          "family":"SkuFamily"
+       },
+       "type":"Microsoft.DBforMySQL/servers",
+       "resources":[  
+          {  
+             "type":"firewallrules",
+             "apiVersion":"2016-02-01-privatepreview",
+             "dependsOn":[  
+                "[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]"
+             ],
+             "location":"[resourceGroup().location]",
+             "name":"[concat(parameters('databaseServerName'),'firewall')]",
+             "properties":{  
+                "startIpAddress":"0.0.0.0",
+                "endIpAddress":"255.255.255.255"
+             }
+          },
+          {  
+             "name":"[parameters('databaseName')]",
+             "type":"databases",
+             "apiVersion":"2016-02-01-privatepreview",
+             "properties":{  
+                "charset":"utf8",
+                "collation":"utf8_general_ci"
+             },
+             "dependsOn":[  
+                "[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]"
+             ]
+          }
+       ]
+    },
+	//////////////////////
+	// WORDPRESS WEBSITE
+    {
+      "apiVersion": "2014-06-01",
+      "name": "[variables('webSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "Website"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+		"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]",
+      ],
+      "properties": {
+        "name": "[variables('webSiteName')]",
+        "serverFarm": "[parameters('hostingPlanName')]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2014-11-01",
+          "name": "connectionstrings",
+          "type": "config",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
+          ],
+          "properties": {
+            "defaultConnection": {
+              "value": "[variables('dbConnectionString')]",
+              "type": 0
+            }
+          }
+        },
+        {
+          "apiVersion": "2014-06-01",
+          "name": "web",
+          "type": "config",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
+          ],
+          "properties": {
+            "phpVersion": "5.6"
+          }
+        },
+        {
+          "name": "MSDeploy",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-06-01",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
+            "[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/config/web')]",
+			"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]"
+          ],
+          "tags": {
+            "displayName": "WordPressDeploy"
+          },
+          "properties": {
+            "packageUri": "https://sovstorage.blob.core.windows.net/packages/wordpress-4.3.1-IIS.zip",
+            "dbType": "MySQL",
+            "connectionString": "[variables('dbConnectionString')]",
+            "setParameters": {
+              "AppPath": "[variables('webSiteName')]",
+              "DbServer": "[parameters('databaseServerName')]",
+              "DbName": "[parameters('databaseName')]",
+              "DbUsername": "[parameters('databaseUsername')]",
+              "DbPassword": "[parameters('databasePassword')]",
+              "DbAdminUsername": "[parameters('databaseUsername')]",
+              "DbAdminPassword": "[parameters('databasePassword')]"
+            }
+          }
+        }
+      ]
+    },	
+	//////////////////////
+	// AUTO-SCALE SETTINGS
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('hostingPlanName'), '-', resourceGroup().name)]",
+      "type": "Microsoft.Insights/autoscalesettings",
+      "location": "East US",
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "AutoScaleSettings"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+		"[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/Extensions/MSDeploy')]"
+      ],
+      "properties": {
+        "profiles": [
+          {
+            "name": "Default",
+            "capacity": {
+              "minimum": 1,
+              "maximum": 2,
+              "default": 1
+            },
+            "rules": [
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT10M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 80.0
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT10M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT1H",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 60.0
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT1H"
+                }
+              }
+            ]
+          }
+        ],
+        "enabled": false,
+        "name": "[concat(parameters('hostingPlanName'), '-', resourceGroup().name)]",
+        "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+      }
+    },
+	//////////////////////
+	// SERVER ERRORS ALERT
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('ServerErrors ', parameters('hostingPlanName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "East US",
+      "dependsOn": [
+        "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
+		"[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/Extensions/MSDeploy')]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]": "Resource",
+        "displayName": "ServerErrorsAlertRule"
+      },
+      "properties": {
+        "name": "[concat('ServerErrors ', variables('webSiteName'))]",
+        "description": "[concat(variables('webSiteName'), ' has some server errors, status code 5xx.')]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]",
+            "metricName": "Http5xx"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0.0,
+          "windowSize": "PT5M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": [ ]
+        }
+      }
+    },
+	//////////////////////
+	// FORBIDDEN REQUESTS ALERT
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('ForbiddenRequests ', parameters('hostingPlanName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "East US",
+      "dependsOn": [
+        "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
+		"[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/Extensions/MSDeploy')]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]": "Resource",
+        "displayName": "ForbiddenRequestsAlertRule"
+      },
+      "properties": {
+        "name": "[concat('ForbiddenRequests ', variables('webSiteName'))]",
+        "description": "[concat(variables('webSiteName'), ' has some requests that are forbidden, status code 403.')]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]",
+            "metricName": "Http403"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0,
+          "windowSize": "PT5M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": [ ]
+        }
+      }
+    },
+	//////////////////////
+	// HIGH CPU ALERT
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('HighCPU ', parameters('hostingPlanName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "East US",
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+		"[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/Extensions/MSDeploy')]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "HighCPUAlertRule"
+      },
+      "properties": {
+        "name": "[concat('HighCPU ', parameters('hostingPlanName'))]",
+        "description": "[concat('The average CPU usage is high across all the instances of ', parameters('hostingPlanName'))]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+            "metricName": "CpuPercentage"
+          },
+          "operator": "GreaterThan",
+          "threshold": 90,
+          "windowSize": "PT15M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": [ ]
+        }
+      }
+    },
+	//////////////////////
+	// LONG HTTP QUEUE ALERT
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('LongHttpQueue - ', parameters('hostingPlanName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "East US",
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+		"[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/Extensions/MSDeploy')]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "LongHttpQueueAlertRule"
+      },
+      "properties": {
+        "name": "[concat('LongHttpQueue ', parameters('hostingPlanName'))]",
+        "description": "[concat('The HTTP queue for the instances of ', parameters('hostingPlanName'), ' has a large number of pending requests.')]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+            "metricName": "HttpQueueLength"
+          },
+          "operator": "GreaterThan",
+          "threshold": 100.0,
+          "windowSize": "PT5M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": [ ]
+        }
+      }
+    },
+	//////////////////////
+	// APP INSIGHTS
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[variables('webSiteName')]",
+      "type": "Microsoft.Insights/components",
+      "location": "East US",
+      "dependsOn": [
+        "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
+		"[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/Extensions/MSDeploy')]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]": "Resource",
+        "displayName": "AppInsightsComponent"
+      },
+      "properties": {
+        "applicationId": "[variables('webSiteName')]"
+      }
+    }
+  ]
+}
