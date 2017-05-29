@@ -24,7 +24,7 @@
     },
 	// DATABASE SERVER NAME - It can only be made up of lowercase letters 'a'-'z', the numbers 0-9 and the hyphen. The hyphen may not lead or trail in the name.
     "databaseServerName": {
-      "value": "sov-db-mysql"
+      "value": "mysql-db"
     },
 	// DATABASE NAME - NO SPECIAL CHARACTERS!
     "databaseName": {

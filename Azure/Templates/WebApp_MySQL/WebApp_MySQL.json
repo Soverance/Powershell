@@ -110,8 +110,14 @@
   /////////////////////////////////////////////
   // VARIABLES
   "variables": {
+	// The Web App's full website name - includes the unique Resource ID in the name
     "webSiteName": "[concat('SOV-WP-', uniqueString(resourceGroup().id))]",
-    "dbConnectionString": "[concat('Database=', parameters('databaseName'), ';Data Source=', parameters('databaseServerName'), ';User Id=', parameters('databaseUsername'), ';Password=', parameters('databasePassword'))]"
+	// Data Source for connection string requires the '.mysql.database.azure.com' suffix to be appended
+	"databaseDataSource": "[concat(parameters('databaseServerName'), '.mysql.database.azure.com')]",
+	// Database Full Username
+	//"databaseFullUsername": "[concat(parameters('databaseUsername'), '@', parameters('databaseServerName'))]",
+	// Full Connection String to Database
+	"dbConnectionString": "[concat('Database=', parameters('databaseName'), '; Data Source=', variables('databaseDataSource'), '; User Id=', parameters('databaseUsername'), '; Password=', parameters('databasePassword'))]"
   },
   /////////////////////////////////////////////
   // RESOURCES
@@ -196,6 +202,7 @@
       "dependsOn": [
         "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
 		"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]",
+		"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'), '/databases/', parameters('databaseName'))]"
       ],
       "properties": {
         "name": "[variables('webSiteName')]",
@@ -203,6 +210,35 @@
       },
       "resources": [
         {
+          "name": "MSDeploy",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2014-06-01",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
+            "[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/config/web')]",
+			"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]",
+			"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'), '/databases/', parameters('databaseName'))]"
+          ],
+          "tags": {
+            "displayName": "WordPressDeploy"
+          },
+          "properties": {
+            "packageUri": "https://sovstorage.blob.core.windows.net/packages/wordpress-4.3.1-IIS.zip",
+            "dbType": "MySQL",
+            "connectionString": "[variables('dbConnectionString')]",
+            "setParameters": {
+              "AppPath": "[variables('webSiteName')]",
+              "DbServer": "[parameters('databaseServerName')]",
+              "DbName": "[parameters('databaseName')]",
+              "DbUsername": "[parameters('databaseUsername')]",
+              "DbPassword": "[parameters('databasePassword')]",
+              "DbAdminUsername": "[parameters('databaseUsername')]",
+              "DbAdminPassword": "[parameters('databasePassword')]"
+            }
+          }
+        },
+		{
           "apiVersion": "2014-11-01",
           "name": "connectionstrings",
           "type": "config",
@@ -225,34 +261,6 @@
           ],
           "properties": {
             "phpVersion": "5.6"
-          }
-        },
-        {
-          "name": "MSDeploy",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2014-06-01",
-          "dependsOn": [
-            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
-            "[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/config/web')]",
-			"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]"
-          ],
-          "tags": {
-            "displayName": "WordPressDeploy"
-          },
-          "properties": {
-            "packageUri": "https://sovstorage.blob.core.windows.net/packages/wordpress-4.3.1-IIS.zip",
-            "dbType": "MySQL",
-            "connectionString": "[variables('dbConnectionString')]",
-            "setParameters": {
-              "AppPath": "[variables('webSiteName')]",
-              "DbServer": "[parameters('databaseServerName')]",
-              "DbName": "[parameters('databaseName')]",
-              "DbUsername": "[parameters('databaseUsername')]",
-              "DbPassword": "[parameters('databasePassword')]",
-              "DbAdminUsername": "[parameters('databaseUsername')]",
-              "DbAdminPassword": "[parameters('databasePassword')]"
-            }
           }
         }
       ]

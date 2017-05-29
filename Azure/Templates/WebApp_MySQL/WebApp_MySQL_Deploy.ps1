@@ -11,7 +11,7 @@
 # Ensure the correct Azure subscription is current before continuing. View all via Get-AzureRmSubscription -All
 #Select-AzureRmSubscription -SubscriptionId "[your-id-goes-here]" -TenantId "[your-azure-ad-tenant-id-goes-here]"
  
-$ResourceGroupName = "sov-wordpressTEST5"
+$ResourceGroupName = "sov-wordpressTEST1"
 $ResourceGroupLocation = "East US"
 $TemplateFile = "WebApp_MySQL.json"
 $TemplateParametersFile = "WebApp_MySQL.parameters.json"
