@@ -8,7 +8,7 @@
 # The params are really just here to make this script usable on it's own, but they are unnecessary if you modify the script to avoid a cred prompt
 
 param(
-    [string]$user = $(throw "-user is required. Please enter a valid email address.")
+    [string]$user = $(throw "-user is required. Please enter a valid email address."),
     [string]$password = $(throw "-password is required.")
 )
 
