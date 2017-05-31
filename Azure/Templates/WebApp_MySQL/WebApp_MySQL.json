@@ -115,9 +115,11 @@
 	// Data Source for connection string requires the '.mysql.database.azure.com' suffix to be appended
 	"databaseDataSource": "[concat(parameters('databaseServerName'), '.mysql.database.azure.com')]",
 	// Database Full Username
-	//"databaseFullUsername": "[concat(parameters('databaseUsername'), '@', parameters('databaseServerName'))]",
+	"databaseFullUsername": "[concat(parameters('databaseUsername'), '@', parameters('databaseServerName'))]",
 	// Full Connection String to Database
-	"dbConnectionString": "[concat('Database=', parameters('databaseName'), '; Data Source=', variables('databaseDataSource'), '; User Id=', parameters('databaseUsername'), '; Password=', parameters('databasePassword'))]"
+	"dbConnectionString": "[concat('Database=', parameters('databaseName'), '; Data Source=', variables('databaseDataSource'), '; User Id=', parameters('databaseUsername'), '; Password=', parameters('databasePassword'))]",
+	// Full WP Connection String to Database
+	"WPConnectionString": "[concat('Server=', variables('databaseDataSource'), '; Database=', parameters('databaseName'), '; uid=', parameters('databaseUsername'), '; Password=', parameters('databasePassword'))]"
   },
   /////////////////////////////////////////////
   // RESOURCES
@@ -501,5 +503,19 @@
         "applicationId": "[variables('webSiteName')]"
       }
     }
-  ]
+  ],  
+  "outputs": {
+      "db-connectionstring-output": {
+          "type": "string",
+          "value": "[variables('dbConnectionString')]"
+      },
+      "wp-connectionstring-output": {
+          "type": "string",
+          "value": "[variables('WPConnectionString')]"
+      },
+      "db-server-output": {
+          "type": "object",
+          "value": "[reference(parameters('databaseServerName'))]"
+      }
+  }
 }

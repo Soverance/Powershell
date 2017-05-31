@@ -20,11 +20,11 @@
     },
 	// DATABASE PASSWORD
     "databasePassword": {
-      "value": "yourpassword"
+      "value": "Password00"
     },
 	// DATABASE SERVER NAME - It can only be made up of lowercase letters 'a'-'z', the numbers 0-9 and the hyphen. The hyphen may not lead or trail in the name.
     "databaseServerName": {
-      "value": "mysql-db"
+      "value": "dbmysql"
     },
 	// DATABASE NAME - NO SPECIAL CHARACTERS!
     "databaseName": {
