@@ -117,9 +117,9 @@
 	// Database Full Username
 	"databaseFullUsername": "[concat(parameters('databaseUsername'), '@', parameters('databaseServerName'))]",
 	// Full Connection String to Database
-	"dbConnectionString": "[concat('Database=', parameters('databaseName'), '; Data Source=', variables('databaseDataSource'), '; User Id=', parameters('databaseUsername'), '; Password=', parameters('databasePassword'))]",
+	"dbConnectionString": "[concat('Database=', parameters('databaseName'), '; Data Source=', variables('databaseDataSource'), '; User Id=', variables('databaseFullUsername'), '; Password=', parameters('databasePassword'))]",
 	// Full WP Connection String to Database
-	"WPConnectionString": "[concat('Server=', variables('databaseDataSource'), '; Database=', parameters('databaseName'), '; uid=', parameters('databaseUsername'), '; Password=', parameters('databasePassword'))]"
+	//"WPConnectionString": "[concat('Server=', variables('databaseDataSource'), '; Database=', parameters('databaseName'), '; uid=', parameters('databaseUsername'), '; Password=', parameters('databasePassword'))]"
   },
   /////////////////////////////////////////////
   // RESOURCES
@@ -197,74 +197,108 @@
       "name": "[variables('webSiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[resourceGroup().location]",
-      "tags": {
+      "tags": 
+	  {
         "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
         "displayName": "Website"
       },
-      "dependsOn": [
+      "dependsOn": 
+	  [
         "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
 		"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]",
 		"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'), '/databases/', parameters('databaseName'))]"
       ],
-      "properties": {
+      "properties": 
+	  {
         "name": "[variables('webSiteName')]",
         "serverFarm": "[parameters('hostingPlanName')]"
       },
-      "resources": [
+      "resources": 
+	  [
+		//////////////////////
+		// MSDeploy
         {
           "name": "MSDeploy",
           "type": "extensions",
           "location": "[resourceGroup().location]",
           "apiVersion": "2014-06-01",
-          "dependsOn": [
+          "dependsOn": 
+		  [
             "[concat('Microsoft.Web/sites/', variables('webSiteName'))]",
             "[concat('Microsoft.Web/Sites/', variables('webSiteName'), '/config/web')]",
 			"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'))]",
-			"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'), '/databases/', parameters('databaseName'))]"
+			"[concat('Microsoft.DBforMySQL/servers/', parameters('databaseServerName'), '/databases/', parameters('databaseName'))]",
           ],
-          "tags": {
+          "tags": 
+		  {
             "displayName": "WordPressDeploy"
           },
-          "properties": {
-            "packageUri": "https://sovstorage.blob.core.windows.net/packages/wordpress-4.3.1-IIS.zip",
+          "properties": 
+		  {
+            "packageUri": "https://sovstorage.blob.core.windows.net/packages/wordpress-4.3.1-IIS-UsernameFix.zip",
             "dbType": "MySQL",
             "connectionString": "[variables('dbConnectionString')]",
-            "setParameters": {
+            "setParameters": 
+			{
               "AppPath": "[variables('webSiteName')]",
               "DbServer": "[parameters('databaseServerName')]",
               "DbName": "[parameters('databaseName')]",
-              "DbUsername": "[parameters('databaseUsername')]",
+              "DbUsername": "[variables('databaseFullUsername')]",
               "DbPassword": "[parameters('databasePassword')]",
-              "DbAdminUsername": "[parameters('databaseUsername')]",
+              "DbAdminUsername": "[variables('databaseFullUsername')]",
               "DbAdminPassword": "[parameters('databasePassword')]"
             }
           }
         },
+		//////////////////////
+		// Connection String Setup
 		{
-          "apiVersion": "2014-11-01",
-          "name": "connectionstrings",
-          "type": "config",
-          "dependsOn": [
-            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
-          ],
-          "properties": {
-            "defaultConnection": {
-              "value": "[variables('dbConnectionString')]",
-              "type": 0
+		  "apiVersion": "2014-11-01",
+		  "name": "connectionstrings",
+		  "type": "config",
+		  "dependsOn": 
+		  [
+			"[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
+		  ],
+		  "properties": 
+		  {
+		    "defaultConnection": 
+			{
+            "value": "[variables('dbConnectionString')]",
+            "type": 0
             }
           }
-        },
-        {
-          "apiVersion": "2014-06-01",
-          "name": "web",
-          "type": "config",
-          "dependsOn": [
-            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
-          ],
-          "properties": {
-            "phpVersion": "5.6"
-          }
-        }
+	    },
+	    //////////////////////
+	    // PHP VERSION
+	    {
+	      "apiVersion": "2014-06-01",
+		  "name": "web",
+		  "type": "config",
+		  "dependsOn": 
+		  [
+		    "[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
+		  ],
+		  "properties": 
+		  {
+		    "phpVersion": "5.6"
+		  }
+	    },
+		//////////////////////
+	    // CUSTOM DOMAIN
+		//{
+		//  "apiVersion": "2015-08-01",
+		//  "type": "hostNameBindings",
+		//  "name": "www.yourcustomdomain.com",
+		//  "dependsOn": [
+		//	  "[concat('Microsoft.Web/sites/', variables('webAppName'))]"
+		//  ],
+		//  "properties": {
+		//    "domainId": null,
+        //    "hostNameType": "Verified",
+        //    "siteName": "variables('webAppName')"
+		//  }
+		//}		
       ]
     },	
 	//////////////////////
