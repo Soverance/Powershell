@@ -1,7 +1,6 @@
-// © 2017 Soverance Studios
+// © 2017 BKV, Inc.
 // Scott McCutchen
-// www.soverance.com
-// scott.mccutchen@soverance.com
+// www.bkv.com
 // scott.mccutchen@bkv.com
 
 // This template will deploy a new Azure Web App, with WordPress installed and connected to a MySQL database.
@@ -111,7 +110,7 @@
   // VARIABLES
   "variables": {
 	// The Web App's full website name - includes the unique Resource ID in the name
-    "webSiteName": "[concat('SOV-WP-', uniqueString(resourceGroup().id))]",
+    "webSiteName": "['BKV-WP-', uniqueString(resourceGroup().id))]",
 	// Data Source for connection string requires the '.mysql.database.azure.com' suffix to be appended
 	"databaseDataSource": "[concat(parameters('databaseServerName'), '.mysql.database.azure.com')]",
 	// Database Full Username
@@ -235,12 +234,12 @@
           },
           "properties": 
 		  {
-            "packageUri": "https://sovstorage.blob.core.windows.net/packages/wordpress-4.3.1-IIS-UsernameFix.zip",
+            "packageUri": "https://uawebassets.blob.core.windows.net/packages/wordpress-4.3.1-IIS-NoVerify.zip",
             "dbType": "MySQL",
             "connectionString": "[variables('dbConnectionString')]",
             "setParameters": 
 			{
-              "AppPath": "[variables('webSiteName')]",
+              //"AppPath": "[variables('webSiteName')]",
               "DbServer": "[parameters('databaseServerName')]",
               "DbName": "[parameters('databaseName')]",
               "DbUsername": "[variables('databaseFullUsername')]",

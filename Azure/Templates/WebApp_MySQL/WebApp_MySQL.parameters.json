@@ -12,11 +12,11 @@
   "parameters": {
 	// Hosting Plan Name - NO SPACES!
     "hostingPlanName": {
-      "value": "SoveranceWP"
+      "value": "BKVWPDeploy"
     },
 	// DATABASE USERNAME
     "databaseUsername": {
-      "value": "soverance"
+      "value": "bkvadmin"
     },
 	// DATABASE PASSWORD
     "databasePassword": {
@@ -24,7 +24,7 @@
     },
 	// DATABASE SERVER NAME - It can only be made up of lowercase letters 'a'-'z', the numbers 0-9 and the hyphen. The hyphen may not lead or trail in the name.
     "databaseServerName": {
-      "value": "dbmysql"
+      "value": "bkv-mysql"
     },
 	// DATABASE NAME - NO SPECIAL CHARACTERS!
     "databaseName": {

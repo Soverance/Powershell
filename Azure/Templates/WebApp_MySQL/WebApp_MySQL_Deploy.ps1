@@ -1,7 +1,6 @@
-# © 2017 Soverance Studios
+# © 2017 BKV, Inc.
 # Scott McCutchen
-# www.soverance.com
-# scott.mccutchen@soverance.com
+# www.bkv.com
 # scott.mccutchen@bkv.com
 
 # You must have the Azure Powershell Module installed to use this script,
@@ -11,7 +10,7 @@
 # Ensure the correct Azure subscription is current before continuing. View all via Get-AzureRmSubscription -All
 #Select-AzureRmSubscription -SubscriptionId "[your-id-goes-here]" -TenantId "[your-azure-ad-tenant-id-goes-here]"
  
-$ResourceGroupName = "sov-wordpressTEST"
+$ResourceGroupName = "BKV-wordpressTEST"
 $ResourceGroupLocation = "East US"
 $TemplateFile = "WebApp_MySQL.json"
 $TemplateParametersFile = "WebApp_MySQL.parameters.json"
