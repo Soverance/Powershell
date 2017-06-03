@@ -27,7 +27,7 @@
         "description": "The address range of the subnet created in the new VNET"
       },
       "defaultValue": "10.0.0.0/24"
-    }
+    },
 	"gatewaySubnetPrefix": {
 		"type": "string",
 		"defaultValue": "10.0.1.0/29",
