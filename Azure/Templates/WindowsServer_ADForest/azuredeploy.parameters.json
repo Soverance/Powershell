@@ -17,7 +17,13 @@
 	"localGatewayIpAddress": {
 	    "value": "75.147.192.168"
 	},
-	"localAddressPrefix": {
+	"localAddressPrefix1": {
+	    "value": "192.168.1.0/22"
+	},
+	"localAddressPrefix2": {
+	    "value": "192.168.1.0/22"
+	},
+	"localAddressPrefix3": {
 	    "value": "192.168.1.0/22"
 	},
 	"virtualNetworkAddressRange": {

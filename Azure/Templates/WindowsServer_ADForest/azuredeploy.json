@@ -32,7 +32,19 @@
 			"description": "Public IP of your local/on-prem gateway"
 		}
 	},
-	"localAddressPrefix": {
+	"localAddressPrefix1": {
+		"type": "string",
+		"metadata": {
+			"description": "CIDR block representing the address space of your local/on-prem network's Subnet"
+		}
+	},
+	"localAddressPrefix2": {
+		"type": "string",
+		"metadata": {
+			"description": "CIDR block representing the address space of your local/on-prem network's Subnet"
+		}
+	},
+	"localAddressPrefix3": {
 		"type": "string",
 		"metadata": {
 			"description": "CIDR block representing the address space of your local/on-prem network's Subnet"
@@ -190,7 +202,9 @@
         "properties": {
           "localNetworkAddressSpace": {
             "addressPrefixes": [
-              "[parameters('localAddressPrefix')]"
+              "[parameters('localAddressPrefix1')]",
+			  "[parameters('localAddressPrefix2')]",
+			  "[parameters('localAddressPrefix3')]"
             ]
           },
           "gatewayIpAddress": "[parameters('localGatewayIpAddress')]"
