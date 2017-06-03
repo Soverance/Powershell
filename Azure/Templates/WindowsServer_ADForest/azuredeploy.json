@@ -1,0 +1,525 @@
+// © 2017 BKV, Inc.
+// Scott McCutchen
+// www.soverance.com
+// scott.mccutchen@soverance.com
+
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+	"vpnType": {
+		"type": "String",
+		"metadata": {
+			"description": "Route based (Dynamic Gateway) or Policy based (Static Gateway)"
+		},
+		// We override this param to Policy Based because we connect to a Cisco MX100 on site, which does not support IKEv2 and therefore cannot use Route Based VPN.
+		"defaultValue": "RouteBased",
+		"allowedValues": [
+			"RouteBased",
+			"PolicyBased"
+		]
+	},
+	"localGatewayName": {
+		"type": "string",
+		"defaultValue": "BKV-LocalGateway",
+		"metadata": {
+			"description": "Arbitrary name for gateway resource representing your local/on-prem gateway"
+		}
+	},
+	"localGatewayIpAddress": {
+		"type": "string",
+		"metadata": {
+			"description": "Public IP of your local/on-prem gateway"
+		}
+	},
+	"localAddressPrefix": {
+		"type": "string",
+		"metadata": {
+			"description": "CIDR block representing the address space of your local/on-prem network's Subnet"
+		}
+	},
+	"virtualNetworkName": {
+		"type": "string",
+		"defaultValue": "UA-NET",
+		"metadata": {
+			"description": "Arbitrary name for the Azure Virtual Network"
+		}
+	},
+	"virtualNetworkAddressRange": {
+		"type": "string",
+		"defaultValue": "10.0.0.0/16",
+		"metadata": {
+			"description": "CIDR block representing the address space of the Azure VNet"
+		}
+	},
+	"subnetName": {
+		"type": "string",
+		"defaultValue": "UA-Subnet",
+		"metadata": {
+			"description": "Arbitrary name for the Azure Subnet"
+		}
+	},
+	"subnetPrefix": {
+		"type": "string",
+		"metadata": {
+			"description": "CIDR block for VM subnet, subset of azureVNetAddressPrefix address space"
+		}
+	},
+	"gatewaySubnetPrefix": {
+		"type": "string",
+		"defaultValue": "10.0.1.0/29",
+		"metadata": {
+			"description": "CIDR block for gateway subnet, subset of azureVNetAddressPrefix address space"
+		}
+	},
+	"gatewayPublicIPName": {
+		"type": "string",
+		"defaultValue": "UA-NET-GatewayPublicIP",
+		"metadata": {
+			"description": "Arbitrary name for public IP resource used for the new azure gateway"
+		}
+	},
+	"gatewayName": {
+		"type": "string",
+		"defaultValue": "UA-NET-Gateway",
+		"metadata": {
+			"description": "Arbitrary name for the new gateway"
+		}
+	},
+	"gatewaySku":{  
+		"type":"string",
+		"defaultValue": "Basic",
+		"allowedValues": [
+			"Basic",
+			"Standard",
+			"HighPerformance"
+		],
+		"metadata":{  
+			"description":"The Sku of the Gateway. This must be one of Basic, Standard or HighPerformance."
+		}
+	},
+	"connectionName": {
+		"type": "string",
+		"defaultValue": "UA-NET-To-BKV",
+		"metadata": {
+			"description": "Arbitrary name for the new connection between Azure VNet and other network"
+		}
+	},
+	"sharedKey": {
+		"type": "string",
+		"metadata": {
+			"description": "Shared key (PSK) for IPSec tunnel"
+		}
+	},
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the administrator account of the new VM and domain"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the administrator account of the new VM and domain"
+      }
+    },
+    "domainName": {
+      "type": "string",
+      "metadata": {
+        "description": "The FQDN of the Active Directory Domain to be created"
+      }
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The DNS prefix for the public IP address used by the Load Balancer"
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The location of resources, such as templates and DSC modules, that the template depends on"
+      },
+	  "defaultValue": "https://raw.githubusercontent.com/Soverance/Powershell/master/Azure/Templates/WindowsServer_ADForest"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Auto-generated token to access _artifactsLocation"
+      },
+      "defaultValue": ""
+    }
+  },
+  /////////////////////////////////////////////
+  // VARIABLES
+  "variables": {
+    "storageAccountName": "unifiedstorage",
+    "adLBFE": "UA-DC-LBFE",
+    "adLBBE": "UA-DC-LBBE",
+    "adRDPNAT": "UA-DC-RDP",
+    "adNicName": "UA-DC-NIC",
+    "adNicIPAddress": "10.0.0.4",
+	"vnetID": "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+	"gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
+    "adVMName": "UA-VM-DC1",
+    "publicIPAddressName": "UA-DC-PublicIP",
+    "adAvailabilitySetName": "UA-DC-AvailabiltySet",
+    "adLBName": "UA-DC-LoadBalancer"
+  },
+  /////////////////////////////////////////////
+  // RESOURCES
+  "resources": [
+	// STORAGE ACCOUNT
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {}
+    },
+	// LOCAL GATEWAY
+	{
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/localNetworkGateways",
+        "name": "[parameters('localGatewayName')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "localNetworkAddressSpace": {
+            "addressPrefixes": [
+              "[parameters('localAddressPrefix')]"
+            ]
+          },
+          "gatewayIpAddress": "[parameters('localGatewayIpAddress')]"
+        }
+      },
+	  // AZURE CONNECTION TO LOCAL BKV FIREWALL
+      {
+        "apiVersion": "2015-06-15",
+        "name": "[parameters('connectionName')]",
+        "type": "Microsoft.Network/connections",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/virtualNetworkGateways/', parameters('gatewayName'))]",
+          "[concat('Microsoft.Network/localNetworkGateways/', parameters('localGatewayName'))]"
+        ],
+        "properties": {
+          "virtualNetworkGateway1": {
+            "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('gatewayName'))]"
+          },
+          "localNetworkGateway2": {
+            "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localGatewayName'))]"
+          },
+          "connectionType": "IPsec",
+          "routingWeight": 10,
+          "sharedKey": "[parameters('sharedKey')]"
+        }
+      },
+	// PUBLIC IP for GATEWAY  
+	{
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('gatewayPublicIPName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+	// PUBLIC IP for VIRTUAL MACHINE
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsPrefix')]"
+        }
+      }
+    },
+	// AVAILABILITY SET
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('adAvailabilitySetName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "properties": {}
+    },
+	// VIRTUAL NETWORK
+    {
+      "type": "Microsoft.Resources/deployments",
+      "name": "[parameters('virtualNetworkName')]",
+      "apiVersion": "2016-02-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet.json', parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "virtualNetworkAddressRange": {
+            "value": "[parameters('virtualNetworkAddressRange')]"
+          },
+          "subnetName": {
+            "value": "[parameters('subnetName')]"
+          },
+          "subnetRange": {
+            "value": "[parameters('subnetPrefix')]"
+          },
+		  "gatewaySubnetPrefix": {
+            "value": "[parameters('gatewaySubnetPrefix')]"
+          }
+        }
+      }
+    },
+	// VIRTUAL NETWORK GATEWAY
+	{
+	  "apiVersion": "2015-06-15",
+	  "type": "Microsoft.Network/virtualNetworkGateways",
+	  "name": "[parameters('gatewayName')]",
+	  "location": "[resourceGroup().location]",
+	  "dependsOn": [
+	    "[concat('Microsoft.Network/publicIPAddresses/', parameters('gatewayPublicIPName'))]",
+	    "[concat('Microsoft.Resources/deployments/', parameters('virtualNetworkName'))]"
+	  ],
+	  "properties": {
+	    "ipConfigurations": [
+		  {
+		    "properties": {
+			  "privateIPAllocationMethod": "Dynamic",
+			  "subnet": {
+			    "id": "[variables('gatewaySubnetRef')]"
+			  },
+			  "publicIPAddress": {
+			    "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('gatewayPublicIPName'))]"
+			  }
+		    },
+		    "name": "vnetGatewayConfig"
+		  }
+	    ],
+	    "sku": {
+		  "name": "[parameters('gatewaySku')]",
+		  "tier": "[parameters('gatewaySku')]"
+	    },
+	    "gatewayType": "Vpn",
+	    "vpnType": "[parameters('vpnType')]",
+	    "enableBgp": "false"
+	  }
+	},
+	// LOAD BALANCER
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('adLBName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[variables('adLBFE')]",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('adLBBE')]"
+          }
+        ],
+        "inboundNatRules": [
+          {
+            "name": "[variables('adRDPNAT')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('adLBName'), variables('adLBFE'))]"
+              },
+              "protocol": "tcp",
+              "frontendPort": 3389,
+              "backendPort": 3389,
+              "enableFloatingIP": false
+            }
+          }
+        ]
+      }
+    },
+	// NETWORK INTERFACE
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('adNicName')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments/', parameters('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/loadBalancers/', variables('adLBName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('adNicIPAddress')]",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('adLBName'), variables('adLBBE'))]"
+                }
+              ],
+              "loadBalancerInboundNatRules": [
+                {
+                  "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adRDPNAT'))]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+	// VIRTUAL MACHINE
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('adVMName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicName'))]",
+        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]",
+        "[resourceId('Microsoft.Network/loadBalancers', variables('adLBName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_D2_v2"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]"
+        },
+        "osProfile": {
+          "computerName": "[variables('adVMName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/', variables('adVMName'), '-os-disk.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "vhd": {
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/', variables('adVMName'), '-data-disk.vhd')]"
+              },
+              "name": "[concat(variables('adVMName'), '-data-disk')]",
+              "caching": "None",
+              "createOption": "Empty",
+              "diskSizeGB": "1000",
+              "lun": 0
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "type": "extensions",
+          "name": "InstallActiveDirectoryForest",
+          "apiVersion": "2015-06-15",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('adVMName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "2.19",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "ModulesUrl": "[concat(parameters('_artifactsLocation'), '/DSC/CreateADPDC.zip', parameters('_artifactsLocationSasToken'))]",
+              "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
+              "Properties": {
+                "DomainName": "[parameters('domainName')]",
+                "AdminCreds": {
+                  "UserName": "[parameters('adminUsername')]",
+                  "Password": "PrivateSettingsRef:AdminPassword"
+                }
+              }
+            },
+            "protectedSettings": {
+              "Items": {
+                "AdminPassword": "[parameters('adminPassword')]"
+              }
+            }
+          }
+        }
+      ]
+    },
+	// UPDATE VIRTUAL NETWORK DNS SETTINGS
+    {
+      "type": "Microsoft.Resources/deployments",
+      "name": "UpdateVNetDNS",
+      "apiVersion": "2016-02-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('adVMName'), 'InstallActiveDirectoryForest')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet-with-dns-server.json', parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "virtualNetworkAddressRange": {
+            "value": "[parameters('virtualNetworkAddressRange')]"
+          },
+          "subnetName": {
+            "value": "[parameters('subnetName')]"
+          },
+          "subnetRange": {
+            "value": "[parameters('subnetPrefix')]"
+          },
+		  "gatewaySubnetPrefix": {
+            "value": "[parameters('gatewaySubnetPrefix')]"
+          },
+          "DNSServerAddress": {
+            "value": [
+              "[variables('adNicIPAddress')]"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

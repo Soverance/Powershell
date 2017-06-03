@@ -1,0 +1,40 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "value": "GEN-UNIQUE"
+    },
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "domainName": {
+      "value": "GEN-UNIQUE"
+    },
+    "dnsPrefix": {
+      "value": "GEN-UNIQUE"
+    },
+	"localGatewayIpAddress": {
+	    "value": "75.147.192.168"
+	},
+	"localAddressPrefix": {
+	    "value": "192.168.1.0/22"
+	},
+	"virtualNetworkAddressRange": {
+	    "value": "10.0.0.0/16"
+	},
+	"subnetPrefix": {
+	    "value": "10.0.0.0/24"
+	},
+	"gatewaySubnetPrefix": {
+	    "value": "10.0.1.0/29"
+	},
+	// We override this param to Policy Based because we connect to a Cisco MX100 on site, which does not support IKEv2 and therefore cannot use Route Based VPN.
+	"vpnType": {
+	    "value": "PolicyBased"
+	},
+	"sharedKey": {
+	    "value": "GEN-PASSWORD"
+	}
+  }
+}
