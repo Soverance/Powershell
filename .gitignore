@@ -18,7 +18,8 @@
 *.jar
 *.rar
 *.tar
-*.zip
+#.zip was removed because we use it for deploying certain resources in ARM templates
+#*.zip
 
 # Logs and databases #
 ######################
