@@ -1,0 +1,14 @@
+// © 2017 BKV, Inc.
+// Scott McCutchen
+// www.bkv.com
+// scott.mccutchen@bkv.com
+
+// This metadata file is required for the template to be indexed on Azure.com
+
+{
+  "itemDisplayName": "LAMP Deploy",
+  "description": "This template provides a easy way to deploy a full LAMP stack virtual machine on Azure.",
+  "summary": "This template provides a easy way to deploy a full LAMP stack in Azure on an Ubuntu virtual machine.",
+  "githubUsername": "smccutchen",
+  "dateUpdated": "2017-06-01"
+}

@@ -1,0 +1,27 @@
+// © 2017 Soverance Studios
+// Scott McCutchen
+// www.soverance.com
+// scott.mccutchen@soverance.com
+// scott.mccutchen@bkv.com
+
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountNamePrefix": {
+      "value": "GEN-UNIQUE-11"
+    },
+    "adminUsername": {
+      "value": "azureUser"
+    },
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "dnsLabelPrefix": {
+      "value": "GEN-UNIQUE"
+    },
+    "mySqlPassword": {
+      "value": "GEN-PASSWORD"
+    }
+  }
+}
