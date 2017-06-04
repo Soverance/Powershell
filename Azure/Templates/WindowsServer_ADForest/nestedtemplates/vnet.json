@@ -29,18 +29,18 @@
       "defaultValue": "10.0.0.0/24"
     },
 	"gatewaySubnetPrefix": {
-		"type": "string",
-		"defaultValue": "10.0.1.0/29",
-		"metadata": {
-			"description": "CIDR block for gateway subnet, subset of azureVNetAddressPrefix address space"
-		}
+	  "type": "string",
+	  "defaultValue": "10.0.1.0/29",
+	  "metadata": {
+		"description": "CIDR block for gateway subnet, subset of azureVNetAddressPrefix address space"
+	  }
 	},
 	"networkSecurityGroupName": {
-		"type": "string",
-		"defaultValue": "SOV-NET-NetworkSecurityGroup",
-		"metadata": {
-			"description": "The name of the network security group"
-		}
+	  "type": "string",
+	  "defaultValue": "SOV-NET-NetworkSecurityGroup",
+	  "metadata": {
+		"description": "The name of the network security group"
+	  }
 	}
   },
   "resources": [
@@ -55,14 +55,14 @@
             "[parameters('virtualNetworkAddressRange')]"
           ]
         },
+		"networkSecurityGroup": {
+		  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+		},
         "subnets": [
           {
             "name": "[parameters('subnetName')]",
             "properties": {
               "addressPrefix": "[parameters('subnetRange')]"
-			  "networkSecurityGroup": {
-				"id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
-			  }
             }
           },
 		  {

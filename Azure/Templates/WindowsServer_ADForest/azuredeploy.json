@@ -373,8 +373,10 @@
               "frontendPort": 3389,
               "backendPort": 3389,
               "enableFloatingIP": false
-            },
-			"name": "[variables('adRDPNATIIS')]",
+            }
+          },
+		  {
+		    "name": "[variables('adRDPNATIIS')]",
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('adLBName'), variables('adLBFE'))]"
@@ -384,7 +386,7 @@
               "backendPort": 3390,
               "enableFloatingIP": false
             }
-          }
+		  }
         ]
       }
     },
