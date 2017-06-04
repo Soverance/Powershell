@@ -40,7 +40,14 @@
       "metadata": {
         "description": "The DNS address(es) of the DNS Server(s) used by the VNET"
       }
-    }
+    },
+	"networkSecurityGroupName": {
+		"type": "string",
+		"defaultValue": "SOV-NET-NetworkSecurityGroup",
+		"metadata": {
+			"description": "The name of the network security group"
+		}
+	}
   },
   "resources": [
     {
@@ -62,7 +69,10 @@
             "name": "[parameters('subnetName')]",
             "properties": {
               "addressPrefix": "[parameters('subnetRange')]"
-            }
+            },
+			"networkSecurityGroup": {
+			  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+			}
           },
 		  {
             "name": "GatewaySubnet",

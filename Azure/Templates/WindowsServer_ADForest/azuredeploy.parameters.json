@@ -15,16 +15,10 @@
       "value": "GEN-UNIQUE"
     },
 	"localGatewayIpAddress": {
-	    "value": "75.147.192.168"
+	    "value": "000.000.000.000"
 	},
-	"localAddressPrefix1": {
-	    "value": "192.168.1.0/22"
-	},
-	"localAddressPrefix2": {
-	    "value": "192.168.1.0/22"
-	},
-	"localAddressPrefix3": {
-	    "value": "192.168.1.0/22"
+	"localAddressPrefix": {
+	    "value": "192.168.1.0/24"
 	},
 	"virtualNetworkAddressRange": {
 	    "value": "10.0.0.0/16"

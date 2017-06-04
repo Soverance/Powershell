@@ -21,7 +21,7 @@
 	},
 	"localGatewayName": {
 		"type": "string",
-		"defaultValue": "BKV-LocalGateway",
+		"defaultValue": "SOV-NET-LocalGateway",
 		"metadata": {
 			"description": "Arbitrary name for gateway resource representing your local/on-prem gateway"
 		}
@@ -32,19 +32,7 @@
 			"description": "Public IP of your local/on-prem gateway"
 		}
 	},
-	"localAddressPrefix1": {
-		"type": "string",
-		"metadata": {
-			"description": "CIDR block representing the address space of your local/on-prem network's Subnet"
-		}
-	},
-	"localAddressPrefix2": {
-		"type": "string",
-		"metadata": {
-			"description": "CIDR block representing the address space of your local/on-prem network's Subnet"
-		}
-	},
-	"localAddressPrefix3": {
+	"localAddressPrefix": {
 		"type": "string",
 		"metadata": {
 			"description": "CIDR block representing the address space of your local/on-prem network's Subnet"
@@ -52,7 +40,7 @@
 	},
 	"virtualNetworkName": {
 		"type": "string",
-		"defaultValue": "UA-NET",
+		"defaultValue": "SOV-NET",
 		"metadata": {
 			"description": "Arbitrary name for the Azure Virtual Network"
 		}
@@ -66,7 +54,7 @@
 	},
 	"subnetName": {
 		"type": "string",
-		"defaultValue": "UA-Subnet",
+		"defaultValue": "SOV-NET-Subnet",
 		"metadata": {
 			"description": "Arbitrary name for the Azure Subnet"
 		}
@@ -86,14 +74,14 @@
 	},
 	"gatewayPublicIPName": {
 		"type": "string",
-		"defaultValue": "UA-NET-GatewayPublicIP",
+		"defaultValue": "SOV-NET-GatewayPublicIP",
 		"metadata": {
 			"description": "Arbitrary name for public IP resource used for the new azure gateway"
 		}
 	},
 	"gatewayName": {
 		"type": "string",
-		"defaultValue": "UA-NET-Gateway",
+		"defaultValue": "SOV-NET-Gateway",
 		"metadata": {
 			"description": "Arbitrary name for the new gateway"
 		}
@@ -112,7 +100,7 @@
 	},
 	"connectionName": {
 		"type": "string",
-		"defaultValue": "UA-NET-To-BKV",
+		"defaultValue": "SOV-NET-To-Local",
 		"metadata": {
 			"description": "Arbitrary name for the new connection between Azure VNet and other network"
 		}
@@ -165,18 +153,24 @@
   /////////////////////////////////////////////
   // VARIABLES
   "variables": {
-    "storageAccountName": "unifiedstorage",
-    "adLBFE": "UA-DC-LBFE",
-    "adLBBE": "UA-DC-LBBE",
-    "adRDPNAT": "UA-DC-RDP",
-    "adNicName": "UA-DC-NIC",
-    "adNicIPAddress": "10.0.0.4",
+    "storageAccountName": "soverancestorage",
+    "adLBFE": "SOV-NET-LBFE",
+    "adLBBE": "SOV-NET-LBBE",
+    "adRDPNATPDC": "SOV-PDC-RDP",
+	"adRDPNATIIS": "SOV-IIS-RDP",
+    "adNicNamePDC": "SOV-PDC-NIC",
+    "adNicIPAddressPDC": "10.0.0.4",
+	"adNicNameIIS": "SOV-IIS-NIC",
+    "adNicIPAddressIIS": "10.0.0.5",
 	"vnetID": "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
 	"gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
-    "adVMName": "UA-VM-DC1",
-    "publicIPAddressName": "UA-DC-PublicIP",
-    "adAvailabilitySetName": "UA-DC-AvailabiltySet",
-    "adLBName": "UA-DC-LoadBalancer"
+    "adPDCName": "SOV-PDC",
+	"adIISName": "SOV-IIS",
+    "publicIPAddressNameDC1": "SOV-PDC-PublicIP",
+	"publicIPAddressNameIIS": "SOV-IIS-PublicIP",
+    "adAvailabilitySetName": "SOV-PDC-AvailabiltySet",
+	"networkSecurityGroupName": "SOV-NET-SECURITYGROUP",
+    "adLBName": "SOV-NET-LoadBalancer"
   },
   /////////////////////////////////////////////
   // RESOURCES
@@ -202,15 +196,13 @@
         "properties": {
           "localNetworkAddressSpace": {
             "addressPrefixes": [
-              "[parameters('localAddressPrefix1')]",
-			  "[parameters('localAddressPrefix2')]",
-			  "[parameters('localAddressPrefix3')]"
+              "[parameters('localAddressPrefix')]",
             ]
           },
           "gatewayIpAddress": "[parameters('localGatewayIpAddress')]"
         }
       },
-	  // AZURE CONNECTION TO LOCAL BKV FIREWALL
+	  // AZURE CONNECTION TO LOCAL FIREWALL
       {
         "apiVersion": "2015-06-15",
         "name": "[parameters('connectionName')]",
@@ -242,10 +234,23 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-	// PUBLIC IP for VIRTUAL MACHINE
+	// PUBLIC IP for VIRTUAL MACHINE DC1
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddressName')]",
+      "name": "[variables('publicIPAddressNameDC1')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsPrefix')]"
+        }
+      }
+    },
+	// PUBLIC IP for VIRTUAL MACHINE IIS
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressNameIIS')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -289,6 +294,9 @@
           },
 		  "gatewaySubnetPrefix": {
             "value": "[parameters('gatewaySubnetPrefix')]"
+          },
+		  "networkSecurityGroupName": {
+            "value": "[variables('networkSecurityGroupName')]"
           }
         }
       }
@@ -334,7 +342,8 @@
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameDC1'))]",
+		"[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameIIS'))]"
       ],
       "properties": {
         "frontendIPConfigurations": [
@@ -342,7 +351,8 @@
             "name": "[variables('adLBFE')]",
             "properties": {
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameDC1'))]",
+				"id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameIIS'))]"
               }
             }
           }
@@ -354,7 +364,7 @@
         ],
         "inboundNatRules": [
           {
-            "name": "[variables('adRDPNAT')]",
+            "name": "[variables('adRDPNATPDC')]",
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('adLBName'), variables('adLBFE'))]"
@@ -363,15 +373,120 @@
               "frontendPort": 3389,
               "backendPort": 3389,
               "enableFloatingIP": false
+            },
+			"name": "[variables('adRDPNATIIS')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('adLBName'), variables('adLBFE'))]"
+              },
+              "protocol": "tcp",
+              "frontendPort": 3390,
+              "backendPort": 3390,
+              "enableFloatingIP": false
             }
           }
         ]
       }
     },
-	// NETWORK INTERFACE
+	// NETWORK SECURITY GROUP
+	{
+	  "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "RDP",
+            "properties": {
+              "description": "Allows RDP connections.",
+              "protocol": "Any",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+             "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "FTP",
+            "properties": {
+              "description": "Allows standard FTP connections.",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "21",
+             "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1010,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "FTP-Passive",
+            "properties": {
+              "description": "Allows passive FTP connections.",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1041-1045",
+             "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1020,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "HTTP",
+            "properties": {
+              "description": "Allows HTTP connections.",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+             "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1030,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "HTTPS",
+            "properties": {
+              "description": "Allows HTTPS connections.",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+             "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1040,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "PERFORCE",
+            "properties": {
+              "description": "Allows Perforce connections.",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1666",
+             "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1050,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+	// NETWORK INTERFACE - Primary Domain Controller
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('adNicName')]",
+      "name": "[variables('adNicNamePDC')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -381,13 +496,16 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "ipconfig1",
+            "name": "ipconfigPDC",
             "properties": {
               "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[variables('adNicIPAddress')]",
+              "privateIPAddress": "[variables('adNicIPAddressPDC')]",
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
               },
+			  "networkSecurityGroup": {
+				"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+			  },
               "loadBalancerBackendAddressPools": [
                 {
                   "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('adLBName'), variables('adLBBE'))]"
@@ -403,27 +521,65 @@
         ]
       }
     },
-	// VIRTUAL MACHINE
+	// NETWORK INTERFACE - IIS Server
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('adNicNameIIS')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments/', parameters('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/loadBalancers/', variables('adLBName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfigIIS",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('adNicIPAddressIIS')]",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+              },
+			  "networkSecurityGroup": {
+				"id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+			  },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('adLBName'), variables('adLBBE'))]"
+                }
+              ],
+              "loadBalancerInboundNatRules": [
+                {
+                  "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adRDPNAT'))]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+	// VIRTUAL MACHINE - Primary Domain Controller
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('adVMName')]",
+      "name": "[variables('adPDCName')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicNamePDC'))]",
         "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]",
         "[resourceId('Microsoft.Network/loadBalancers', variables('adLBName'))]"
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "Standard_D2_v2"
+          "vmSize": "Standard_A1"
         },
         "availabilitySet": {
           "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]"
         },
         "osProfile": {
-          "computerName": "[variables('adVMName')]",
+          "computerName": "[variables('adPDCName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -437,7 +593,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/', variables('adVMName'), '-os-disk.vhd')]"
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/', variables('adPDCName'), '-os-disk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -445,9 +601,9 @@
           "dataDisks": [
             {
               "vhd": {
-                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/', variables('adVMName'), '-data-disk.vhd')]"
+                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/', variables('adPDCName'), '-data-disk.vhd')]"
               },
-              "name": "[concat(variables('adVMName'), '-data-disk')]",
+              "name": "[concat(variables('adPDCName'), '-data-disk')]",
               "caching": "None",
               "createOption": "Empty",
               "diskSizeGB": "1000",
@@ -458,7 +614,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicNamePDC'))]"
             }
           ]
         }
@@ -470,7 +626,7 @@
           "apiVersion": "2015-06-15",
           "location": "[resourceGroup().location]",
           "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', variables('adVMName'))]"
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('adPDCName'))]"
           ],
           "properties": {
             "publisher": "Microsoft.Powershell",
@@ -497,13 +653,68 @@
         }
       ]
     },
+	// VIRTUAL MACHINE - IIS server
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('adIISName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicNameIIS'))]",
+        "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]",
+        "[resourceId('Microsoft.Network/loadBalancers', variables('adLBName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_A1"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('adAvailabilitySetName'))]"
+        },
+        "osProfile": {
+          "computerName": "[variables('adIISName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/', variables('adIISName'), '-os-disk.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('adNicNameIIS'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        
+      ]
+    },
 	// UPDATE VIRTUAL NETWORK DNS SETTINGS
     {
       "type": "Microsoft.Resources/deployments",
       "name": "UpdateVNetDNS",
       "apiVersion": "2016-02-01",
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('adVMName'), 'InstallActiveDirectoryForest')]"
+        "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('adPDCName'), 'InstallActiveDirectoryForest')]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -529,8 +740,11 @@
           },
           "DNSServerAddress": {
             "value": [
-              "[variables('adNicIPAddress')]"
+              "[variables('adNicIPAddressPDC')]"
             ]
+          },
+		  "networkSecurityGroupName": {
+            "value": "[variables('networkSecurityGroupName')]"
           }
         }
       }

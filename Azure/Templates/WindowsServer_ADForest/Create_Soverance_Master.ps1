@@ -16,7 +16,7 @@
 # - a new storage account
 # - a load-balanced Windows Server 2016 instance with a new unified.agency Active Directory Domain.
  
-$ResourceGroupName = "UA-Domain"
+$ResourceGroupName = "Soverance-Domain"
 $ResourceGroupLocation = "East US"
 $TemplateFile = "azuredeploy.json"
 $TemplateParametersFile = "azuredeploy.parameters.json"
