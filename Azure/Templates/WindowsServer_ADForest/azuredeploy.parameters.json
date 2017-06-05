@@ -9,10 +9,7 @@
       "value": "GEN-PASSWORD"
     },
     "domainName": {
-      "value": "GEN-UNIQUE"
-    },
-    "dnsPrefix": {
-      "value": "GEN-UNIQUE"
+      "value": "soverance.net"
     },
 	"localGatewayIpAddress": {
 	    "value": "000.000.000.000"

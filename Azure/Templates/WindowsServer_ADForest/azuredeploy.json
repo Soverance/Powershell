@@ -133,7 +133,8 @@
       "type": "string",
       "metadata": {
         "description": "The DNS prefix for the public IP address used by the Load Balancer"
-      }
+      },
+	  "defaultValue": "soveranceloadbalancer"
     },
     "_artifactsLocation": {
       "type": "string",
@@ -156,8 +157,11 @@
     "storageAccountName": "soverancestorage",
     "adLBFE": "SOV-NET-LBFE",
     "adLBBE": "SOV-NET-LBBE",
+	"adLBProbe": "SOV-NET-LBProbe",
+	"adLBRule80": "SOV-NET-LBRule-80",
     "adRDPNATPDC": "SOV-PDC-RDP",
 	"adRDPNATIIS": "SOV-IIS-RDP",
+	"adPERFORCENATPDC": "SOV-PDC-PERFORCE",
     "adNicNamePDC": "SOV-PDC-NIC",
     "adNicIPAddressPDC": "10.0.0.4",
 	"adNicNameIIS": "SOV-IIS-NIC",
@@ -166,10 +170,9 @@
 	"gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
     "adPDCName": "SOV-PDC",
 	"adIISName": "SOV-IIS",
-    "publicIPAddressNameDC1": "SOV-PDC-PublicIP",
-	"publicIPAddressNameIIS": "SOV-IIS-PublicIP",
-    "adAvailabilitySetName": "SOV-PDC-AvailabiltySet",
-	"networkSecurityGroupName": "SOV-NET-SECURITYGROUP",
+    "publicIPAddressName": "SOV-LB-PublicIP",
+    "adAvailabilitySetName": "SOV-AvailabiltySet",
+	"networkSecurityGroupName": "SOV-NET-SecurityGroup",
     "adLBName": "SOV-NET-LoadBalancer"
   },
   /////////////////////////////////////////////
@@ -189,41 +192,41 @@
     },
 	// LOCAL GATEWAY
 	{
-        "apiVersion": "2015-06-15",
-        "type": "Microsoft.Network/localNetworkGateways",
-        "name": "[parameters('localGatewayName')]",
-        "location": "[resourceGroup().location]",
-        "properties": {
-          "localNetworkAddressSpace": {
-            "addressPrefixes": [
-              "[parameters('localAddressPrefix')]",
-            ]
-          },
-          "gatewayIpAddress": "[parameters('localGatewayIpAddress')]"
-        }
-      },
-	  // AZURE CONNECTION TO LOCAL FIREWALL
-      {
-        "apiVersion": "2015-06-15",
-        "name": "[parameters('connectionName')]",
-        "type": "Microsoft.Network/connections",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-          "[concat('Microsoft.Network/virtualNetworkGateways/', parameters('gatewayName'))]",
-          "[concat('Microsoft.Network/localNetworkGateways/', parameters('localGatewayName'))]"
-        ],
-        "properties": {
-          "virtualNetworkGateway1": {
-            "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('gatewayName'))]"
-          },
-          "localNetworkGateway2": {
-            "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localGatewayName'))]"
-          },
-          "connectionType": "IPsec",
-          "routingWeight": 10,
-          "sharedKey": "[parameters('sharedKey')]"
-        }
-      },
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/localNetworkGateways",
+      "name": "[parameters('localGatewayName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "localNetworkAddressSpace": {
+          "addressPrefixes": [
+            "[parameters('localAddressPrefix')]",
+          ]
+        },
+        "gatewayIpAddress": "[parameters('localGatewayIpAddress')]"
+      }
+    },
+	// AZURE CONNECTION TO LOCAL FIREWALL
+    {
+      "apiVersion": "2015-06-15",
+      "name": "[parameters('connectionName')]",
+      "type": "Microsoft.Network/connections",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworkGateways/', parameters('gatewayName'))]",
+        "[concat('Microsoft.Network/localNetworkGateways/', parameters('localGatewayName'))]"
+      ],
+      "properties": {
+        "virtualNetworkGateway1": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('gatewayName'))]"
+        },
+        "localNetworkGateway2": {
+          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localGatewayName'))]"
+        },
+        "connectionType": "IPsec",
+        "routingWeight": 10,
+        "sharedKey": "[parameters('sharedKey')]"
+      }
+    },
 	// PUBLIC IP for GATEWAY  
 	{
       "apiVersion": "2016-03-30",
@@ -234,23 +237,10 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-	// PUBLIC IP for VIRTUAL MACHINE DC1
+	// PUBLIC IP for LOAD BALANCER
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddressNameDC1')]",
-      "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('dnsPrefix')]"
-        }
-      }
-    },
-	// PUBLIC IP for VIRTUAL MACHINE IIS
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddressNameIIS')]",
+      "name": "[variables('publicIPAddressName')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -342,24 +332,54 @@
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameDC1'))]",
-		"[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameIIS'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
       ],
       "properties": {
-        "frontendIPConfigurations": [
+		"frontendIPConfigurations": [
           {
             "name": "[variables('adLBFE')]",
             "properties": {
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameDC1'))]",
-				"id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameIIS'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
               }
             }
           }
-        ],
+        ],		
         "backendAddressPools": [
           {
             "name": "[variables('adLBBE')]"
+          }
+        ],
+		"probes": [
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "[variables('adLBProbe')]"
+          }
+        ],
+		"loadBalancingRules": [
+          {
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('adLBName')), '/frontendIpConfigurations/', variables('adLBFE'))]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('adLBName')), '/backendAddressPools/', variables('adLBBE'))]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('adLBName')), '/probes/', variables('adLBProbe'))]"
+				
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "idleTimeoutInMinutes": 15
+            },
+            "Name": "[variables('adLBRule80')]"
           }
         ],
         "inboundNatRules": [
@@ -386,6 +406,18 @@
               "backendPort": 3390,
               "enableFloatingIP": false
             }
+		  },
+		  {
+		    "name": "[variables('adPERFORCENATPDC')]",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('adLBName'), variables('adLBFE'))]"
+              },
+              "protocol": "tcp",
+              "frontendPort": 1666,
+              "backendPort": 1666,
+              "enableFloatingIP": false
+            }
 		  }
         ]
       }
@@ -402,7 +434,7 @@
             "name": "RDP",
             "properties": {
               "description": "Allows RDP connections.",
-              "protocol": "Any",
+              "protocol": "*",
               "sourcePortRange": "*",
               "destinationPortRange": "3389",
              "sourceAddressPrefix": "*",
@@ -481,6 +513,34 @@
               "priority": 1050,
               "direction": "Inbound"
             }
+          },
+		  {
+            "name": "AllowVNetInBound",
+            "properties": {
+              "description": "Allows connections through the virtual network.",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+             "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 2000,
+              "direction": "Inbound"
+            }
+          },
+		  {
+            "name": "AllowAzureLoadBalancerInBound",
+            "properties": {
+              "description": "Allows connections through the load balancer.",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+             "sourceAddressPrefix": "AzureLoadBalancer",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 2001,
+              "direction": "Inbound"
+            }
           }
         ]
       }
@@ -493,7 +553,8 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments/', parameters('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/loadBalancers/', variables('adLBName'))]"
+        "[resourceId('Microsoft.Network/loadBalancers/', variables('adLBName'))]",
+		"[resourceId('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -515,7 +576,8 @@
               ],
               "loadBalancerInboundNatRules": [
                 {
-                  "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adRDPNAT'))]"
+                  "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adRDPNATPDC'))]",
+				  "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adPERFORCENATPDC'))]"
                 }
               ]
             }
@@ -531,7 +593,8 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments/', parameters('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/loadBalancers/', variables('adLBName'))]"
+        "[resourceId('Microsoft.Network/loadBalancers/', variables('adLBName'))]",
+		"[resourceId('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -553,7 +616,7 @@
               ],
               "loadBalancerInboundNatRules": [
                 {
-                  "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adRDPNAT'))]"
+                  "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatRules', variables('adLBName'), variables('adRDPNATIIS'))]",
                 }
               ]
             }
