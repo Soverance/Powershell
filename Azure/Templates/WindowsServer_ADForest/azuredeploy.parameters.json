@@ -9,7 +9,7 @@
       "value": "GEN-PASSWORD"
     },
     "domainName": {
-      "value": "soverance.net"
+      "value": "soverance.com"
     },
 	"localGatewayIpAddress": {
 	    "value": "000.000.000.000"
@@ -26,7 +26,7 @@
 	"gatewaySubnetPrefix": {
 	    "value": "10.0.1.0/29"
 	},
-	// We override this param to Policy Based because we connect to a Cisco MX100 on site, which does not support IKEv2 and therefore cannot use Route Based VPN.
+	// We override this param to Policy Based because we connect to an older VPN device on site, which does not support IKEv2 and therefore cannot use Route Based VPN.
 	"vpnType": {
 	    "value": "PolicyBased"
 	},
