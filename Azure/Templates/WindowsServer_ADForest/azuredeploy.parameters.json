@@ -12,7 +12,7 @@
       "value": "soverance.com"
     },
 	"localGatewayIpAddress": {
-	    "value": "000.000.000.000"
+	    "value": "GEN-UNIQUE"
 	},
 	"localAddressPrefix": {
 	    "value": "192.168.1.0/24"
