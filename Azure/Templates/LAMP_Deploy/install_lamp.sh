@@ -15,8 +15,8 @@ sudo apt-get -y install php5
 sudo apt-get -y install php5-mysql  
 
 # write some PHP
-echo <center><h1>BKV Client Linux Deployment Test Page</h1></center\> > /var/www/html/phpinfo.php
-echo <?php phpinfo(); ?> >> /var/www/html/phpinfo.php
+#sudo echo '<center><h1>BKV Client Linux Deployment Test Page</h1></center\>' > /var/www/html/phpinfo.php
+sudo echo '<?php phpinfo(); ?>' >> /var/www/html/phpinfo.php
 
 # restart Apache
 apachectl restart
