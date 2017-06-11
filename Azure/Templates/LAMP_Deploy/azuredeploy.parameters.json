@@ -8,19 +8,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountNamePrefix": {
-      "value": "lampdeploy"
+      "value": "GEN-UNIQUE-11"
     },
     "adminUsername": {
       "value": "AzureAdmin"
     },
     "adminPassword": {
-      "value": "Ridill00"
+      "value": "GEN-PASSWORD"
     },
     "dnsLabelPrefix": {
-      "value": "lampdeploy"
+      "value": "GEN-UNIQUE"
     },
     "mySqlPassword": {
-      "value": "Ridill00"
+      "value": "GEN-PASSWORD"
     }
   }
 }
