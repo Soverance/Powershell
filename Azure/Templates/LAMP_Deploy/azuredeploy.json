@@ -40,11 +40,12 @@
     },
     "ubuntuOSVersion": {
       "type": "string",
-      "defaultValue": "14.04.2-LTS",
+      "defaultValue": "17.04",
       "allowedValues": [
-        "12.04.5-LTS",
         "14.04.2-LTS",
-        "15.10"
+        "16.04-LTS",
+		"16.04",
+		"17.04"
       ],
       "metadata": {
         "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version. Allowed values: 12.04.5-LTS, 14.04.2-LTS, 15.10."
@@ -54,23 +55,24 @@
   "variables": {
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
-    "OSDiskName": "osdiskforlinuxsimple",
-    "nicName": "myVMNic",
-    "addressPrefix": "10.0.0.0/16",
+    "OSDiskName": "LAMP-OS-Disk",
+    "nicName": "NIC-LAMP",
+    "addressPrefix": "192.168.100.0/16",
     "subnetName": "Subnet",
-    "subnetPrefix": "10.0.0.0/24",
+    "subnetPrefix": "192.168.100.0/24",
     "storageAccountType": "Standard_LRS",
-    "publicIPAddressName": "myPublicIP",
+    "publicIPAddressName": "PIP-LAMP",
     "publicIPAddressType": "Dynamic",
     "vmStorageAccountContainerName": "vhds",
-    "vmName": "MyUbuntuVM",
+    "vmName": "VM-UbuntuLAMP",
     "vmSize": "Standard_A2",
-    "virtualNetworkName": "MyVNET",
+    "virtualNetworkName": "VNET-LAMP",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "apiVersion": "2015-06-15"
   },
   "resources": [
+  // STORAGE ACCOUNT
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Storage/storageAccounts",
@@ -80,6 +82,7 @@
         "accountType": "[variables('storageAccountType')]"
       }
     },
+	// PUBLIC IP ADDRESS FOR NIC
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
@@ -92,6 +95,7 @@
         }
       }
     },
+	// VIRTUAL NETWORK
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Network/virtualNetworks",
@@ -113,6 +117,7 @@
         ]
       }
     },
+	// VIRTUAL MACHINE NETWORK INTERFACE
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Network/networkInterfaces",
@@ -139,6 +144,7 @@
         ]
       }
     },
+	// VIRTUAL MACHINE
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
@@ -182,9 +188,10 @@
         }
       }
     },
+	// VIRTUAL MACHINE EXTENSION
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'),'/newuserscript')]",
+      "name": "[concat(variables('vmName'),'/ampdeploy')]",
       "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [

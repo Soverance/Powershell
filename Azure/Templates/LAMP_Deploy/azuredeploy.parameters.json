@@ -1,7 +1,6 @@
-// © 2017 Soverance Studios
+// © 2017 BKV, Inc.
 // Scott McCutchen
-// www.soverance.com
-// scott.mccutchen@soverance.com
+// www.bkv.com
 // scott.mccutchen@bkv.com
 
 {
@@ -9,19 +8,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountNamePrefix": {
-      "value": "GEN-UNIQUE-11"
+      "value": "lampdeploy"
     },
     "adminUsername": {
-      "value": "azureUser"
+      "value": "AzureAdmin"
     },
     "adminPassword": {
-      "value": "GEN-PASSWORD"
+      "value": "Ridill00"
     },
     "dnsLabelPrefix": {
-      "value": "GEN-UNIQUE"
+      "value": "lampdeploy"
     },
     "mySqlPassword": {
-      "value": "GEN-PASSWORD"
+      "value": "Ridill00"
     }
   }
 }

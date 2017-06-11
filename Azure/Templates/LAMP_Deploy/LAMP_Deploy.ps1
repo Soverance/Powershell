@@ -10,8 +10,8 @@
 # Ensure the correct Azure subscription is current before continuing. View all via Get-AzureRmSubscription -All
 #Select-AzureRmSubscription -SubscriptionId "[your-id-goes-here]" -TenantId "[your-azure-ad-tenant-id-goes-here]"
  
-$ResourceGroupName = "BKV-LAMP-TEST"
-$ResourceGroupLocation = "East US"
+$ResourceGroupName = "UA-LAMP-TEST"
+$ResourceGroupLocation = "East US 2"
 $TemplateFile = "azuredeploy.json"
 $TemplateParametersFile = "azuredeploy.parameters.json"
 
