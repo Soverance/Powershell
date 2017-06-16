@@ -1,0 +1,14 @@
+// © 2017 Soverance Studios, LLC.
+// Scott McCutchen
+// www.soverance.com
+// info@soverance.com
+
+// This metadata file is required for the template to be indexed on Azure.com
+
+{
+  "itemDisplayName": "Activate Backup Policy on Resource Group",
+  "description": "This template will use existing recovery services vault and backup policy, and enables backup of VMs belonging to same Resource Group.",
+  "summary": "This template will use existing recovery services vault and backup policy, and enables backup of VMs belonging to same Resource Group.",
+  "githubUsername": "smccutchen",
+  "dateUpdated": "2017-06-13"
+}

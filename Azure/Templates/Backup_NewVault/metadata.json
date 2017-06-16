@@ -1,0 +1,14 @@
+// © 2017 Soverance Studios, LLC.
+// Scott McCutchen
+// www.soverance.com
+// info@soverance.com
+
+// This metadata file is required for the template to be indexed on Azure.com
+
+{
+  "itemDisplayName": "Create Recovery Services Vault with Weekly Backup Policy",
+  "description": "This template creates a new Recovery Services vault and a Weekly Backup Policy that can be used to protect ARM based IaaS VMs.",
+  "summary": "This template creates a new Recovery Services vault and a Weekly Backup Policy that can be used to protect ARM based IaaS VMs.",
+  "githubUsername": "smccutchen",
+  "dateUpdated": "2017-06-13"
+}

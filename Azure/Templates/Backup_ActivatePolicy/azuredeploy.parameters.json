@@ -1,0 +1,23 @@
+// © 2017 Soverance Studios, LLC.
+// Scott McCutchen
+// www.soverance.com
+// info@soverance.com
+
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingVirtualMachinesResourceGroup": {
+      "value": "Sov-Domain"
+    },
+    "existingVirtualMachines": {
+      "value": ["Sov-PDC","Sov-BDC"]
+    },
+    "existingRecoveryServicesVault": {
+      "value": "Sov-Domain-BackupVault"
+    },
+    "existingBackupPolicy": {
+      "value": "WeeklyBackupPolicy"
+    }
+  }
+}
