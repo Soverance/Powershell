@@ -169,7 +169,7 @@
   // VARIABLES
   "variables": {
     "storageAccountName": "soverancestorage",
-	"storageAccountType": "Premium_LRS",
+	"storageAccountType": "Standard_LRS",
 	"publicIPAddressName": "SOV-LB-PublicIP",
     "adAvailabilitySetName": "SOV-AvailabiltySet",
 	"networkSecurityGroupName": "SOV-NET-SecurityGroup",
@@ -189,7 +189,7 @@
 	"gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
     "adPDCVMName": "SOV-PDC",
 	"adBDCVMName": "SOV-BDC",
-	"adVMSize": "Standard_DS2_v2",
+	"adVMSize": "Standard_A1",
 	"imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "imageSKU": "2016-Datacenter",

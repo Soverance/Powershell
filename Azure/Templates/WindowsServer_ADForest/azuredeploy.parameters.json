@@ -3,19 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminUsername": {
-      "value": "soveranceadmin"
+      "value": "GEN-UNIQUE"
     },
     "adminPassword": {
-      "value": "Bahamut00"
+      "value": "GEN-PASSWORD"
     },
     "domainName": {
       "value": "soverance.com"
     },
 	"localGatewayIpAddress": {
-	    "value": "162.235.196.228"
+	    "value": "000.000.000.000"
 	},
 	"localAddressPrefix": {
-	    "value": "192.168.125.0/24"
+	    "value": "192.168.1.0/24"
 	},
 	"virtualNetworkAddressRange": {
 	    "value": "10.0.0.0/16"
@@ -31,7 +31,7 @@
 	    "value": "PolicyBased"
 	},
 	"sharedKey": {
-	    "value": "Ridill00"
+	    "value": "GEN-PASSWORD"
 	}
   }
 }
