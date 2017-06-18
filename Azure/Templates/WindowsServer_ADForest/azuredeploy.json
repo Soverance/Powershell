@@ -189,7 +189,7 @@
 	"gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
     "adPDCVMName": "SOV-PDC",
 	"adBDCVMName": "SOV-BDC",
-	"adVMSize": "Standard_A1",
+	"adVMSize": "Standard_A1_v2",
 	"imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "imageSKU": "2016-Datacenter",
