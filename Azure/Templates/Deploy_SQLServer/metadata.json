@@ -1,0 +1,14 @@
+// © 2017 BKV, Inc.
+// Scott McCutchen
+// www.bkv.com
+// scott.mccutchen@bkv.com
+
+// This metadata file is required for the template to be indexed on Azure.com
+
+{
+  "itemDisplayName": "Deploys a new ARM SQL Server with a single database",
+  "description": "This template creates a new Azure SQL Server with a single database.",
+  "summary": "This template creates a new Azure SQL Server with a single database.",
+  "githubUsername": "smccutchen",
+  "dateUpdated": "2017-06-13"
+}
