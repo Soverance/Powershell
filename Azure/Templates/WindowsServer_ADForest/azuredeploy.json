@@ -134,7 +134,7 @@
       "metadata": {
         "description": "The DNS prefix for the public IP address used by the Load Balancer"
       },
-	  "defaultValue": "soveranceloadbalancer"
+	  "defaultValue": "soverancestudios"
     },
 	"pdcRDPPort": {
       "type": "int",
@@ -168,7 +168,7 @@
   /////////////////////////////////////////////
   // VARIABLES
   "variables": {
-    "storageAccountName": "soverancestorage",
+    "storageAccountName": "soverancestudios",
 	"storageAccountType": "Standard_LRS",
 	"publicIPAddressName": "SOV-LB-PublicIP",
     "adAvailabilitySetName": "SOV-AvailabiltySet",
@@ -182,9 +182,9 @@
 	"adRDPNATBDC": "SOV-BDC-RDP",
 	"adPERFORCENATPDC": "SOV-PDC-PERFORCE",
     "adPDCNicName": "SOV-PDC-NIC",
-    "adPDCNicIPAddress": "172.16.0.4",
+    "adPDCNicIPAddress": "10.0.0.4",
 	"adBDCNicName": "SOV-BDC-NIC",
-    "adBDCNicIPAddress": "172.16.0.5",
+    "adBDCNicIPAddress": "10.0.0.5",
 	"vnetID": "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
 	"gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]",
     "adPDCVMName": "SOV-PDC",
