@@ -9,7 +9,7 @@
 
 # Initial Configuration
 $location = "East US"
-$resourceGroup = "SoveranceDotNet"
+$resourceGroup = "SovNet"
 $vmName = "SOV-WEB"
 
 # Create a new resource group for this purpose
@@ -19,8 +19,8 @@ Write-Host "A new resource group was created called: " $resourceGroup
 $storage = New-AzureRmStorageAccount -ResourceGroupName $resourceGroup -Name "sovazurestorage" -Location $location -SkuName Standard_LRS
 Write-Host "A new storage account was created -" $storage.Name
 
-$subnet0 = New-AzureRmVirtualNetworkSubnetConfig -Name "AzureSubnet" -AddressPrefix 172.16.0.0/24
-$virtualNetwork = New-AzureRmVirtualNetwork -Name "SOV-NET" -ResourceGroupName $resourceGroup -AddressPrefix 172.16.0.0/16 -Location $location -Subnet $subnet0
+$subnet0 = New-AzureRmVirtualNetworkSubnetConfig -Name "AzureSubnet" -AddressPrefix 10.0.0.0/24
+$virtualNetwork = New-AzureRmVirtualNetwork -Name "SOV-NET" -ResourceGroupName $resourceGroup -AddressPrefix 10.0.0.0/16 -Location $location -Subnet $subnet0
 Write-Host "A new subnet was added to the SOV-NET cloud network with ID -" $subnet.Id
 
 # create a new Public IP resource
@@ -30,25 +30,25 @@ $publicIP = New-AzureRmPublicIpAddress -Name $ipName -ResourceGroupName $resourc
 Write-Host "A new Public IP resource was created in" $resourceGroup
 
 # Create an inbound network security group rule for port 3389
-$nsgRuleRDP = New-AzureRmNetworkSecurityRuleConfig -Name SovNetSecurityGroupRuleRDP  -Protocol Tcp `
+$nsgRuleRDP = New-AzureRmNetworkSecurityRuleConfig -Name SovNet-AllowRDP  -Protocol Tcp `
     -Direction Inbound -Priority 1000 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
     -DestinationPortRange 3389 -Access Allow
 Write-Host "An RDP Rule to open port 3389 was created for the NIC."
 
 # Create an inbound network security group rule for port 80
-$nsgRuleHTTP = New-AzureRmNetworkSecurityRuleConfig -Name SovNetSecurityGroupRuleHTTP  -Protocol Tcp `
+$nsgRuleHTTP = New-AzureRmNetworkSecurityRuleConfig -Name SovNet-AllowHTTP  -Protocol Tcp `
     -Direction Inbound -Priority 1001 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
     -DestinationPortRange 80 -Access Allow
 Write-Host "A HTTP Rule to open port 80 was created for the NIC."
 
 # Create an inbound network security group rule for port 443
-$nsgRuleHTTPS = New-AzureRmNetworkSecurityRuleConfig -Name SovNetSecurityGroupRuleHTTPS  -Protocol Tcp `
+$nsgRuleHTTPS = New-AzureRmNetworkSecurityRuleConfig -Name SovNet-AllowHTTPS  -Protocol Tcp `
     -Direction Inbound -Priority 1002 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
     -DestinationPortRange 443 -Access Allow
 Write-Host "A HTTPS Rule to open port 443 was created for the NIC."
 
 # Create an inbound network security group rule for port 1666
-$nsgRulePerforce = New-AzureRmNetworkSecurityRuleConfig -Name SovNetSecurityGroupRulePerforce  -Protocol Tcp `
+$nsgRulePerforce = New-AzureRmNetworkSecurityRuleConfig -Name SovNet-AllowPerforce  -Protocol Tcp `
     -Direction Inbound -Priority 1003 -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * `
     -DestinationPortRange 1666 -Access Allow
 Write-Host "A Perforce Rule to open port 1666 was created for the NIC."
@@ -81,20 +81,23 @@ $vm = Set-AzureRmVMOperatingSystem -VM $vm -Windows -ComputerName $vmName -Crede
 Write-Host "Operating System successfully initialized."
 
 # configure this disk's operating system with a new OS image
-#$vm = Set-AzureRmVMSourceImage -VM $vm -PublisherName MicrosoftWindowsServer -Offer WindowsServer -Skus 2016-Datacenter-Server-Core -Version 2016.127.20170918
-$image = New-AzureRmVMImage -Location $location -PublisherName MicrosoftWindowsServer -Offer WindowsServer -Skus 2016-Datacenter-Server-Core -Version 2016.127.20170918
+$vm = Set-AzureRmVMSourceImage -VM $vm -PublisherName MicrosoftWindowsServer -Offer WindowsServer -Skus 2016-Datacenter-Server-Core -Version 2016.127.20170918
+#$image = Get-AzureRmVMImage -Location $location -PublisherName MicrosoftWindowsServer -Offer WindowsServer -Skus 2016-Datacenter-Server-Core -Version 2016.127.20170918
 Write-Host "OS configured as Windows Server 2016 Datacenter version 2016.127.20170918"
 
 # Set Disk Configuration
 $osDiskName = "SOV-WEB-OS-Disk"
-$osDiskConfig = New-AzureRmDiskConfig -AccountType StandardLRS -Location $location -CreateOption FromImage -DiskSizeGB 32 -OsType Windows
-$osDiskConfig = Set-AzureRmDiskImageReference -Disk $osDiskConfig -Id $image.Id -Lun 1
-$osDisk = New-AzureRmDisk -DiskName $osDiskName -Disk $osDiskConfig -ResourceGroupName $resourceGroup
-Write-Host "OS Disk configured."
+# for whatever reason, these B-series VMs dont seem to deploy correctly with 32 or 64 GB OS disks - ErrorMessage: Disks or snapshot cannot be resized down.
+# however, it does work with a 128 GB disk.  Maybe this will change when B-series leaves preview?
+$osDiskSize = 128
+#$osDiskConfig = New-AzureRmDiskConfig -AccountType StandardLRS -Location $location -CreateOption FromImage -DiskSizeGB 32 -OsType Windows
+#$osDiskConfig = Set-AzureRmDiskImageReference -Disk $osDiskConfig -Id $image.Id -Lun 0
+#$osDisk = New-AzureRmDisk -DiskName $osDiskName -Disk $osDiskConfig -ResourceGroupName $resourceGroup
+#Write-Host "OS Disk configured."
 
 # Add OS Disk to VM -CreateOption FromImage -Windows -Caching 'ReadWrite' -DiskSizeInGB 32 
-$vm = Set-AzureRmVMOSDisk -VM $vm -Name $osDiskName -ManagedDiskId $osDisk.Id
-Write-Host "32 GB Managed OS Disk added to VM."
+$vm = Set-AzureRmVMOSDisk -VM $vm -Name $osDiskName -CreateOption FromImage -Windows -Caching 'ReadWrite' -DiskSizeInGB $osDiskSize -StorageAccountType PremiumLRS
+Write-Host "$($osDiskSize) GB Managed OS Disk added to VM."
 
 # Add network interface to VM
 $vm = Add-AzureRmVMNetworkInterface -VM $vm -Id $netInterface.Id
