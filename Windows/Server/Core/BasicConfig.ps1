@@ -36,3 +36,6 @@ Get-NetFirewallRule -DisplayGroup 'File and Printer Sharing'|Set-NetFirewallRule
 New-Item "C:\SQL" -type directory
 # create the SMB share
 New-SMBShare -Name "SQL" -Path "C:\SQL" -FullAccess "soverance\developers"
+
+# configure windows automatic updates.  Use "/AU /V" to check the current state of updates
+cscript C:\Windows\System32\SCRegEdit.wsf /AU 4
