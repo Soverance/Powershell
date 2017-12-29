@@ -39,3 +39,6 @@ New-SMBShare -Name "SQL" -Path "C:\SQL" -FullAccess "soverance\developers"
 
 # configure windows automatic updates.  Use "/AU /V" to check the current state of updates
 cscript C:\Windows\System32\SCRegEdit.wsf /AU 4
+
+# Opens the Remote Management firewall rules so you can remotely access things like Computer Management snap-ins
+Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru | select DisplayName, Enabled

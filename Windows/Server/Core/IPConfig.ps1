@@ -28,7 +28,7 @@ Get-NetAdapter -Name "Ethernet" | Rename-NetAdapter -NewName "SOV-NIC-SQL" -Pass
 
 # Set a static IP address to the NIC
 # this command will automatically disable DHCP on the adapter
-New-NetIPAddress -InterfaceAlias "SOV-NIC-SQL" -IPv4Address "192.168.1.65" -PrefixLength 24 -DefaultGateway "192.168.1.254"
+New-NetIPAddress -InterfaceAlias "SOV-NIC-SQL" -IPAddress "192.168.1.65" -PrefixLength 24 -DefaultGateway "192.168.1.254"
 
 # Verify DHCP disabled
 Get-NetIPInterface -InterfaceAlias "SOV-NIC-SQL"
