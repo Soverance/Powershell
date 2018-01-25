@@ -31,7 +31,7 @@ $wwwalias = "$($wwwdns)" + "-$($time)"
 
 # define the site's root directory.
 # this logic would need to be updated to make this work outside of my own environment.  But it's fine here.
-$siterootpath = "C:\WEB\" + $($dnsname) + "\.well-known\acme-challenge\"
+$siterootpath = "C:\inetpub\wwwroot\" + $($dnsname) + "\.well-known\acme-challenge\"
 
 # Submit a new DNS domain name identifier for the site you wish to secure with an LE SSL certificate (-Dns and –Alias are required params)
 New-ACMEIdentifier –Dns $dnsname –Alias $sitealias -VaultProfile $profilename
@@ -78,7 +78,7 @@ Submit-ACMECertificate $certalias -VaultProfile $profilename
 # Check to make sure the cert was successfully validated
 Update-ACMECertificate $certalias -VaultProfile $profilename
 
-$exportpath = "C:\WEB\LetsEncrypt\Exports\" + $($dnsname) + "\" + $($sitealias)
+$exportpath = "C:\LetsEncrypt\Exports\" + $($dnsname) + "\" + $($sitealias)
 
 # if the export path does not exist, create it
 if ( -Not (Test-Path $exportpath.trim() ))
@@ -121,6 +121,6 @@ Get-ACMECertificate $certalias -ExportPkcs12 $exportpfx -VaultProfile $profilena
 Get-ACMEInstallerProfile -ListInstallers
 
 # install the certificate in IIS
-Install-ACMECertificate -CertificateRef $certalias -Installer iis -InstallerParameters @{WebsiteRef = 'soverance.com' ; Force = $true}
+Install-ACMECertificate -CertificateRef $certalias -Installer iis -InstallerParameters @{WebsiteRef = $dnsname ; Force = $true}
 
 

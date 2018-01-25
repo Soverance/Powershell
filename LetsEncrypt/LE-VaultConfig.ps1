@@ -6,15 +6,15 @@
 # This script is for installing and configuring the ACMESharp module and vault necessary to provision Lets Encrypt certificates.
 
 # you must first install the ACMESharp module
-#Install-Module ACMESharp
+Install-Module ACMESharp
 # we also want to install the IIS provider so we can work with Windows servers
-#Install-Module -Name ACMESharp.Providers.IIS
+Install-Module -Name ACMESharp.Providers.IIS
 
 # you must then import the module into the current session in order to use it's cmdlets
 Import-Module ACMESharp
 
 # we also need to enable the extension modules for IIS
-#Enable-ACMEExtensionModule -ModuleName ACMESharp.Providers.IIS
+Enable-ACMEExtensionModule -ModuleName ACMESharp.Providers.IIS
 
 # Verify the module was enabled
 Get-ACMEExtensionModule | Select-Object -ExpandProperty Name
@@ -30,7 +30,7 @@ $profilename = "SoveranceVault"
 # then the Submit-ACMECertificate cmdlet will return an “Access Denied” error when trying to save the certificate to the vault.
 # To avoid this issue on lower SKUs, you must use the Set-ACMEVaultProfile cmdlet to specify a custom root directory, as well as set the BypassEFS flag to true.  
 # You must then specify this vault with each successive command.  Set the vault profile with the following command:
-Set-ACMEVaultProfile –ProfileName $profilename –Provider local –VaultParameters @{RootPath = “C:\WEB\LetsEncrypt\Vault”; CreatePath = $true; BypassEFS = $true} -Force
+Set-ACMEVaultProfile –ProfileName $profilename –Provider local –VaultParameters @{RootPath = “C:\LetsEncrypt\Vault”; CreatePath = $true; BypassEFS = $true} -Force
 
 # Initialize the vault using the custom profile
 # if you run this cmdlet without specifying the BaseUri, it defaults to the current LE staging CA server.
