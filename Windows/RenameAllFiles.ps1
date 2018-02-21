@@ -1,6 +1,7 @@
 ﻿# © 2017 Soverance Studios
 # Scott McCutchen
 # soverance.com
+# scott.mccutchen@soverance.com
 #
 # Rename all files incrementally in a specified directory.
 

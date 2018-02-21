@@ -1,7 +1,7 @@
-# © 2017 BKV LLC
+# © 2018 Soverance Studios
 # Scott McCutchen
-# Systems Administrator
-# scott.mccutchen@bkv.com
+# soverance.com
+# scott.mccutchen@soverance.com
 
 # The possible values for Rights are: 
 # ListDirectory, ReadData, WriteData 

@@ -1,3 +1,6 @@
+# © 2017 Soverance Studios
+# Scott McCutchen
+# soverance.com
 # scott.mccutchen@soverance.com
 
 # Remove the product key from a Windows installation, and prepare it for a new user.

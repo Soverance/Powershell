@@ -24,8 +24,12 @@
 # Logs and databases #
 ######################
 *.log
-#*.sql
+#*.sql was removed to include certain T-SQL scripts
 *.sqlite
+
+# Visual Studio client-specific #
+######################
+.vs
 
 # OS generated files #
 ######################

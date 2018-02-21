@@ -1,6 +1,8 @@
-﻿# Scott McCutchen
-# www.soverance.com
-#
+﻿# © 2018 Soverance Studios
+# Scott McCutchen
+# soverance.com
+# scott.mccutchen@soverance.com
+
 # This script is a generic email test sent through Powershell
 
 # Assuming the user was actually at the terminal, this script would be made better by simply calling Get-Credential
