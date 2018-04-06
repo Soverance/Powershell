@@ -21,7 +21,7 @@ param (
 Import-Module ACMESharp
 
 # get date
-$time = Get-Date -Format M.d.yyyy 
+$time = Get-Date -Format o | foreach {$_ -replace ":", "."}
 
 # create a time-stamped vault site and cert alias
 $sitealias = "$($dnsname)" + "-$($time)"
