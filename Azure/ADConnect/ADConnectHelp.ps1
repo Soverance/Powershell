@@ -27,3 +27,6 @@ Set-ADSyncScheduler -SyncCycleEnabled $True
 # Changing the UPN of a user in Azure AD
 # You must first connect to the Azure AD service with the "Connect-AzureAD" cmdlet
 Set-AzureADUser -ObjectID "scottm@soverance.com" -UserPrincipalName "scott.mccutchen@soverance.com"
+
+# Allow the AD Connect service to auto-update
+Set-ADSyncAutoUpgrade -AutoUpgradeState Enabled
