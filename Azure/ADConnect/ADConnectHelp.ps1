@@ -1,4 +1,4 @@
-# © 2018 Soverance Studios, LLC.
+# ï¿½ 2018 Soverance Studios, LLC.
 # Scott McCutchen
 # soverance.com
 # scott.mccutchen@soverance.com
@@ -8,7 +8,7 @@
 
 # If you end up needing to connect to the Azure AD service and make manual changes to the directory, 
 # you'll want to use the Azure AD 2.0 PS module
-# See here:  https://docs.microsoft.com/en-us/powershell/module/Azuread/?view=azureadps-2.0
+# See here for more info:  https://docs.microsoft.com/en-us/powershell/module/Azuread/?view=azureadps-2.0
 
 # Start a sync cycle
 # run this command with -PolicyType Initial to force a full sync
@@ -30,3 +30,7 @@ Set-AzureADUser -ObjectID "scottm@soverance.com" -UserPrincipalName "scott.mccut
 
 # Allow the AD Connect service to auto-update
 Set-ADSyncAutoUpgrade -AutoUpgradeState Enabled
+
+# Toubleshooting the password has synchronization feature
+# see here for more info:  https://docs.microsoft.com/en-us/azure/active-directory/connect/active-directory-aadconnectsync-troubleshoot-password-hash-synchronization
+Invoke-ADSyncDiagnostics -PasswordSync
