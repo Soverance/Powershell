@@ -1,6 +1,7 @@
-
-
-
+# Scott McCutchen
+# soverance.com
+#
+# A simple script to convert all .mkv files in a directory into .avi files
 
 function Write-Log 
     { 
