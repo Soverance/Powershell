@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
+	<name>Soverance-Internal</name>
+	<SSIDConfig>
+		<SSID>
+			<hex>4452554D2D496E7465726E616C</hex>
+			<name>Soverance-Internal</name>
+		</SSID>
+		<nonBroadcast>true</nonBroadcast>
+	</SSIDConfig>
+	<connectionType>ESS</connectionType>
+	<connectionMode>auto</connectionMode>
+	<MSM>
+		<security>
+			<authEncryption>
+				<authentication>WPA2PSK</authentication>
+				<encryption>AES</encryption>
+				<useOneX>false</useOneX>
+			</authEncryption>
+			<sharedKey>
+				<keyType>passPhrase</keyType>
+				<protected>false</protected>
+				<keyMaterial>EnterYourPlainTextPassPhraseHere</keyMaterial>
+			</sharedKey>
+		</security>
+	</MSM>
+</WLANProfile>

@@ -26,6 +26,7 @@
 *.log
 #*.sql was removed to include certain T-SQL scripts
 *.sqlite
+pfSenseBackup.log
 
 # Visual Studio client-specific #
 ######################
