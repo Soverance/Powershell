@@ -28,39 +28,47 @@ $sitealias = "$($dnsname)" + "-$($time)"
 $certalias = "$($dnsname)" + "-cert-$($time)"
 $wwwdns = "www." + $dnsname
 $wwwalias = "$($wwwdns)" + "-$($time)"
+$devdns = "dev." + $dnsname
+$devalias = "$($devdns)" + "-$($time)"
 
 # define the site's root directory.
 # this logic would need to be updated to make this work outside of my own environment.  But it's fine here.
 $siterootpath = "C:\inetpub\wwwroot\" + $($dnsname) + "\.well-known\acme-challenge\"
 
-# Submit a new DNS domain name identifier for the site you wish to secure with an LE SSL certificate (-Dns and –Alias are required params)
-New-ACMEIdentifier –Dns $dnsname –Alias $sitealias -VaultProfile $profilename
+# Submit a new DNS domain name identifier for the site you wish to secure with an LE SSL certificate (-Dns and ï¿½Alias are required params)
+New-ACMEIdentifier -Dns $dnsname -Alias $sitealias -VaultProfile $profilename
 New-ACMEIdentifier -Dns $wwwdns -Alias $wwwalias -VaultProfile $profilename
+New-ACMEIdentifier -Dns $devdns -Alias $devalias -VaultProfile $profilename
 
 # Handle the challenge to prove domain ownership
 # This can be done multiple ways, either manually through an HTTP or DNS challenge, or automatic IIS / Apache challenges.  
 # More information on all supported challenge handlers available can be found on the ACMESharp Github documentation:  https://github.com/ebekker/ACMESharp/wiki/Challenge-Types%2C-Challenge-Handlers-and-Providers
 # To obtain the necessary information for a HTTP challenge, use the following cmdlet:
-$challengeresult1 = Complete-ACMEChallenge $sitealias –ChallengeType http-01 –Handler manual -VaultProfile $profilename
-$challengeresult2 = Complete-ACMEChallenge $wwwalias –ChallengeType http-01 –Handler manual -VaultProfile $profilename
+$challengeresult1 = Complete-ACMEChallenge $sitealias -ChallengeType http-01 -Handler manual -VaultProfile $profilename
+$challengeresult2 = Complete-ACMEChallenge $wwwalias -ChallengeType http-01 -Handler manual -VaultProfile $profilename
+$challengeresult3 = Complete-ACMEChallenge $devalias -ChallengeType http-01 -Handler manual -VaultProfile $profilename
 
 # extract the challenge content output
 $challengeoutput1 = $challengeresult1.Challenges.challenge.FileContent
 $challengeoutput2 = $challengeresult2.Challenges.challenge.FileContent
+$challengeoutput3 = $challengeresult3.Challenges.challenge.FileContent
 
 # create the challenge file name by taking the first section of the challenge output content
 # the file has no extension!
 $outputfilename1 = $challengeoutput1.split(".")[0]
 $outputfilename2 = $challengeoutput2.split(".")[0]
+$outputfilename3 = $challengeoutput3.split(".")[0]
 
 # Create the file in the appropriate web directory
 New-Item -Path $siterootpath -Name $outputfilename1 -Value $challengeoutput1 -Force | Out-Null
 New-Item -Path $siterootpath -Name $outputfilename2 -Value $challengeoutput2 -Force | Out-Null
+New-Item -Path $siterootpath -Name $outputfilename3 -Value $challengeoutput3 -Force | Out-Null
 
 # submit the challenge to Lets Encrypt so that they can perform a validation
 # this will obviously fail if the challenge was not successful
 Submit-ACMEChallenge $sitealias -ChallengeType http-01 -VaultProfile $profilename
 Submit-ACMEChallenge $wwwalias -ChallengeType http-01 -VaultProfile $profilename
+Submit-ACMEChallenge $devalias -ChallengeType http-01 -VaultProfile $profilename
 
 # just give it a few seconds to complete...
 sleep -s 15
@@ -68,9 +76,10 @@ sleep -s 15
 # You can check the status of the challenge with the following command:
 Update-ACMEIdentifier -IdentifierRef $sitealias -VaultProfile $profilename
 Update-ACMEIdentifier -IdentifierRef $wwwalias -VaultProfile $profilename
+Update-ACMEIdentifier -IdentifierRef $devalias -VaultProfile $profilename
 
 # Generate the certificates
-New-ACMECertificate $sitealias -Generate -Alias $certalias -AlternativeIdentifierRefs @($wwwalias) -VaultProfile $profilename
+New-ACMECertificate $sitealias -Generate -Alias $certalias -AlternativeIdentifierRefs @($wwwalias, $devalias) -VaultProfile $profilename
 
 # Submit the certificate for verification
 Submit-ACMECertificate $certalias -VaultProfile $profilename
