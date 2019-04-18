@@ -1,7 +1,9 @@
 # Powershell
 
-Powershell scripts used for various tasks at Soverance Studios.
+This library contains PowerShell scripts used for various tasks at Soverance Studios.
 
+- Applications
+	(Used as the repository for various applications that interact with the scripts in this library)
 - Azure
 	(For tasks related to working with Microsoft Azure)
 - Backups
@@ -12,6 +14,8 @@ Powershell scripts used for various tasks at Soverance Studios.
 	(For tasks related to working with Google Apps)
 - LetsEncrypt
 	(For tasks related to working with Lets Encrypt certificates)
+- Modules
+	(Used as the repository for all custom PS modules)
 - Routers
 	(For tasks related to working with network routers)
 - Unreal
