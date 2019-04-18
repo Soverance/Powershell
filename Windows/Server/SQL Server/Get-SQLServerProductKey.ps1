@@ -1,13 +1,12 @@
-# © 2017 BKV LLC
-# Scott McCutchen
-# Systems Administrator
-# scott.mccutchen@bkv.com
+# Â© 2019 Soverance Studios
+# Scott McCutchen=
+# scott.mccutchen@soverance.com
 
 # This script retrieves the license key of a SQL 2014 Server.
 
-function GetSqlServerProductKey 
-{ 
-   
+function GetSqlServerProductKey
+{
+
     param ($targets = ".")
     $hklm = 2147483650
     $regPath = "SOFTWARE\Microsoft\Microsoft SQL Server\120\Tools\Setup"
@@ -15,7 +14,7 @@ function GetSqlServerProductKey
     $regValue2 = "PatchLevel"
     $regValue3 = "Edition"
 
-    Foreach ($target in $targets) 
+    Foreach ($target in $targets)
     {
         $productKey = $null
         $win32os = $null
@@ -29,7 +28,7 @@ function GetSqlServerProductKey
         ## decrypt base24 encoded binary data
         For ($i = 24; $i -ge 0; $i--) {
             $k = 0
-            For ($j = 14; $j -ge 0; $j--) 
+            For ($j = 14; $j -ge 0; $j--)
             {
                 $k = $k * 256 -bxor $binArray[$j]
                 $binArray[$j] = [math]::truncate($k / 24)
@@ -37,7 +36,7 @@ function GetSqlServerProductKey
             }
             $productKey = $charsArray[$k] + $productKey
 
-            If (($i % 5 -eq 0) -and ($i -ne 0)) 
+            If (($i % 5 -eq 0) -and ($i -ne 0))
             {
                 $productKey = "-" + $productKey
             }
