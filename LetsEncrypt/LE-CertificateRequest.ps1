@@ -1,3 +1,5 @@
+# © 2017-2019 Soverance Studios
+# Scott McCutchen
 # scott.mccutchen@soverance.com
 
 # This script is for requesting certificates from Lets Encrypt.
