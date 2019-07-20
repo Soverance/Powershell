@@ -1,6 +1,5 @@
-# © 2018 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
 # scott.mccutchen@soverance.com
 
 # This script will set the AzureSyncEnabled attribute of every AD user in the specified OU to TRUE

@@ -1,7 +1,6 @@
-# © 2017 Soverance Studios, LLC.
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# www.soverance.com
-# info@soverance.com
+# scott.mccutchen@soverance.com
 
 # Export Active Directory Organizational Unit structure to CSV
 

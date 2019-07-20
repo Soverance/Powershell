@@ -1,3 +1,4 @@
+# © 2018 Soverance Studios
 # Scott McCutchen
 # scott.mccutchen@soverance.com
 

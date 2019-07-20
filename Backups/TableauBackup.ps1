@@ -1,7 +1,6 @@
-# © 2017 BKV, Inc.
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# www.bkv.com
-# scott.mccutchen@bkv.com
+# scott.mccutchen@soverance.com
 
 # This script runs an automated backup of Tableau server.
 
@@ -24,7 +23,7 @@ $StorageAccount = "your-storage-account-name"
 $StorageKey = "your-storage-key"
 $StorageContainer = 'your-storage-container-name'
 # Set the Azure Storage Context
-$StorageContext = New-AzureStorageContext –StorageAccountName $StorageAccount -StorageAccountKey $StorageKey
+$StorageContext = New-AzureStorageContext ï¿½StorageAccountName $StorageAccount -StorageAccountKey $StorageKey
 
 # From the local folder, remove all backups older than 15 days - we don't care about old data!
 Get-ChildItem -Path $TableauBackupDir -Recurse -File | Where LastWriteTime -lt $ExpirationDate | Remove-Item -Force

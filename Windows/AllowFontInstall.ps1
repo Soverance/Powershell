@@ -1,7 +1,6 @@
-# © 2018 BKV LLC
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# Systems Administrator
-# scott.mccutchen@bkv.com
+# scott.mccutchen@soverance.com
 #
 # This script runs as a computer startup script in order to grant permission for font installs
 

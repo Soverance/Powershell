@@ -1,4 +1,7 @@
+# © 2018 Soverance Studios
+# Scott McCutchen
 # scott.mccutchen@soverance.com
+
 # Server Core Basic Configuration Help
 
 # Use this script as a technical document to help configure Server Core installations.  I tend to run these cmdlets in order.

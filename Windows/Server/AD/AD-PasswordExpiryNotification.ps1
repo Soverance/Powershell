@@ -1,6 +1,5 @@
-# © 2017 BKV LLC
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# Systems Administrator
 # scott.mccutchen@soverance.com
 
 # Scan Active Directory for User accounts which have passwords that are about to expire and notify those users via email.

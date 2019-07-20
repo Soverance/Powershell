@@ -1,6 +1,5 @@
-# © 2018 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
 # scott.mccutchen@soverance.com
 #
 # This script will restore the "Control Panel" link to the context menu when right-clicking the Start menu taskbar icon in Windows 10

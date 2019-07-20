@@ -1,6 +1,6 @@
-# © 2017 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
+# scott.mccutchen@soverance.com
 
 # This script recursively pulls information on the NTFS security settings of a specified directory.
 

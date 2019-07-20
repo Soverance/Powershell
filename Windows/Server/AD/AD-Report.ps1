@@ -1,8 +1,6 @@
-# © 2017 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# Systems Administrator
 # scott.mccutchen@soverance.com
-# scott.mccutchen@bkv.com
 
 # Export Active Directory information from the specified server into an Excel .xlsx file
 

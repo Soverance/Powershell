@@ -1,5 +1,6 @@
+# © 2018 Soverance Studios
 # Scott McCutchen
-# www.soverance.com
+# scott.mccutchen@soverance.com
 #
 # This script is used to backup databases in Microsoft SQL Server.
 # Run with the following parameters:

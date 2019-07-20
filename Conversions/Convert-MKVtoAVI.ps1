@@ -10,7 +10,7 @@ function Write-Log
             [string]$strMessage
         )
 
-            $LogDir = 'D:\Media\Movies\Test'
+            $LogDir = 'B:\venture7'
             $Logfile = "\Conversion-Log.txt"
             $Path = $logdir + $logfile
             [string]$strDate = get-date
@@ -18,7 +18,7 @@ function Write-Log
 }
 
 
-$SearchPath = "D:\Media\Movies\Test"
+$SearchPath = "B:\venture7"
 
 $oldVideos = Get-ChildItem -Include @("*.mkv") -Path $SearchPath -Recurse;
 
@@ -27,7 +27,7 @@ Set-Location -Path 'D:\Repository\Software\ffmpeg-3.4.1-win64-static\bin';
 foreach ($OldVideo in $oldVideos) 
 {
     $newVideo = [io.path]::ChangeExtension($OldVideo.FullName, '.avi')
-    & "D:\Repository\Software\ffmpeg-3.4.1-win64-static\bin\ffmpeg.exe" -i $($OldVideo) -c:v copy -c:a copy $($NewVideo)
+    & "D:\Repository\Software\ffmpeg-3.4.1-win64-static\bin\ffmpeg.exe" -i $($OldVideo) -c:v copy -c:a copy $($NewVideo) -bsf:v h264_mp4toannexb
     $OriginalSize = (Get-Item $OldVideo).length 
     $ConvertedSize = (Get-Item $Newvideo).length 
     [long]$Lbound = [Math]::Ceiling($OriginalSize * .85);

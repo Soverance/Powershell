@@ -1,7 +1,6 @@
-# © 2017 BKV, Inc.
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# www.bkv.com
-# scott.mccutchen@bkv.com
+# scott.mccutchen@soverance.com
 
 # You must have the Azure Powershell Module installed to use this script,
 # and have logged into your Azure subscription using the Login-AzureRmAccount command.
@@ -19,8 +18,8 @@ $SourceStorageContainer = 'vhds'
 $DestStorageContainer = 'vhds'
 
 # configure source and destination storage contexts
-$SourceStorageContext = New-AzureStorageContext –StorageAccountName $SourceStorageAccount -StorageAccountKey $SourceStorageKey
-$DestStorageContext = New-AzureStorageContext –StorageAccountName $DestStorageAccount -StorageAccountKey $DestStorageKey
+$SourceStorageContext = New-AzureStorageContext ï¿½StorageAccountName $SourceStorageAccount -StorageAccountKey $SourceStorageKey
+$DestStorageContext = New-AzureStorageContext ï¿½StorageAccountName $DestStorageAccount -StorageAccountKey $DestStorageKey
 
 # Reference the blobs in the source storage container
 $Blobs = Get-AzureStorageBlob -Context $SourceStorageContext -Container $SourceStorageContainer

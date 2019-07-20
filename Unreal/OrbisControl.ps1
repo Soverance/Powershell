@@ -1,6 +1,6 @@
-﻿# © 2017 Soverance Studios
+﻿# © 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
+# scott.mccutchen@soverance.com
 
 # This script navigates to the SCE PS4 Orbis directory, so that you can use the "orbis-ctrl" command
 # SYNTAX:

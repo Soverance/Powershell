@@ -1,6 +1,6 @@
-# © 2018 DRUM Agency
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# scott.mccutchen@drumagency.com
+# scott.mccutchen@soverance.com
 
 # Connect to the Azure AD service before making changes to the directory, 
 # you must use the Azure AD 2.0 PS module

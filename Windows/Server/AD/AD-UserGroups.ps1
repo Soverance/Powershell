@@ -1,7 +1,6 @@
-# © 2017 BKV LLC
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# Systems Administrator
-# scott.mccutchen@bkv.com
+# scott.mccutchen@soverance.com
 
 # Export Active Directory information from the specified server into an Excel .xlsx file
 

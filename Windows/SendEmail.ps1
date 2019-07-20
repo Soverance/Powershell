@@ -20,7 +20,7 @@ $pass = ConvertTo-SecureString -String $password -AsPlainText -Force
 $creds = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $user, $pass
 
 Send-MailMessage `
-    -To 'soverance@gmail.com' `
+    -To 'scott.mccutchen@soverance.com' `
     -Subject 'Powershell Email Test' `
     -Body 'On this page, you see a little girl giggling at a hippopotamus. I wonder why?' `
     -UseSsl `

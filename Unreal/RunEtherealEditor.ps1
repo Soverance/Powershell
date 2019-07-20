@@ -1,5 +1,6 @@
+# © 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
+# scott.mccutchen@soverance.com
 #
 # A simple script to open the Ethereal project editor.
 # You can macro this somewhere for quick access.

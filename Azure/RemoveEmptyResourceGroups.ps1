@@ -1,8 +1,6 @@
-# © 2017 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# www.soverance.com
 # scott.mccutchen@soverance.com
-# scott.mccutchen@bkv.com
 
 # This script will iterate through all available resource groups in your current subscription, and delete any empty ones.
 

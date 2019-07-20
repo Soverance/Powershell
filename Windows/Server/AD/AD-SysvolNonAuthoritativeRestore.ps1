@@ -1,3 +1,5 @@
+# © 2018 Soverance Studios
+# Scott McCutchen
 # scott.mccutchen@soverance.com
 
 # perform a non-authoritative restore of the sysvol directory on a particular DC

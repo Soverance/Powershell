@@ -1,6 +1,6 @@
-# © 2018 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
+# scott.mccutchen@soverance.com
 
 # This script will check your project's maps and remove any unused assets from the content browser.
 

@@ -1,5 +1,6 @@
+# © 2018 Soverance Studios
 # Scott McCutchen
-# www.soverance.com
+# scott.mccutchen@soverance.com
 
 # You'll need to run this script using your MySQL login credentials as parameters
 # Ex: ./RunWebBackup.ps1 -username $user -password $pass

@@ -1,6 +1,6 @@
-# © 2017 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
+# scott.mccutchen@soverance.com
 
 param (
 	[string]$computer = $(throw "-computer is required. A computer on the local domain network must be specified.")

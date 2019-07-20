@@ -1,7 +1,6 @@
-# © 2017 BKV LLC
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# Systems Administrator
-# scott.mccutchen@bkv.com
+# scott.mccutchen@soverance.com
 
 # this script is used to generate unique object IDs for creating new custom Active Directory attributes
 

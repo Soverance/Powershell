@@ -1,6 +1,5 @@
-# © 2018 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
 # scott.mccutchen@soverance.com
 
 # This file is used for configuring Resource-based Constrained Delegation for Microsoft Project Honolulu

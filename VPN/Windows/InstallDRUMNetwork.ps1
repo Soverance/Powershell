@@ -1,4 +1,4 @@
-# Install Soverance Network VPN Connection
+# © 2018 Soverance Studios
 # Scott McCutchen
 # scott.mccutchen@soverance.com
 

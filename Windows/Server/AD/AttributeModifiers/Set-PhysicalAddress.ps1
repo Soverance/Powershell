@@ -1,6 +1,5 @@
-# © 2018 Soverance Studios
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
 # scott.mccutchen@soverance.com
 
 # This script will set the physical street address attribute of every user in the specified AD OU

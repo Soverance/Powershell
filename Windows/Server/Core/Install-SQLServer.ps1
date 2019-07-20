@@ -1,4 +1,7 @@
+# Â© 2018 Soverance Studios
+# Scott McCutchen
 # scott.mccutchen@soverance.com
+
 # Server Core IP Configuration Help
 
 # Use this script as a technical document to help configure Server Core installations.  I tend to run these cmdlets in order.
@@ -23,7 +26,7 @@ Set-Location E:
 ./Setup.exe /QS /ACTION=Install /IACCEPTSQLSERVERLICENSETERMS /ENU /UPDATEENABLED=1 /UPDATESOURCE=MU /FEATURES=SQLEngine,FullText /INSTANCENAME=SOVERANCESQL /INSTANCEDIR="C:\SQL\" /SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSYSADMINACCOUNTS="SOVERANCE\SQL-Admins" /AGTSVCACCOUNT="NT AUTHORITY\Network Service" /TCPENABLED=1 
 
 # Once complete, install the sqlcmd tool
-# This tool is part of the Microsoft® Command Line Utilities for SQL Server
+# This tool is part of the Microsoftï¿½ Command Line Utilities for SQL Server
 # You need version 13.1 or higher to support Always Encrypted (-g) and Azure Active Directory authentication (-G). 
 # see here:  https://www.microsoft.com/en-us/download/details.aspx?id=53591
 # Once copied to the server, run the installation wizard
@@ -46,18 +49,18 @@ $sqlservice = Get-Service MSSQL*
 Start-Service $sqlservice[0]
 
 #Enabling SQL Server Ports
-New-NetFirewallRule -DisplayName “SQL Server” -Direction Inbound –Protocol TCP –LocalPort 1433 -Action allow
-New-NetFirewallRule -DisplayName “SQL Admin Connection” -Direction Inbound –Protocol TCP –LocalPort 1434 -Action allow
-New-NetFirewallRule -DisplayName “SQL Database Management” -Direction Inbound –Protocol UDP –LocalPort 1434 -Action allow
-New-NetFirewallRule -DisplayName “SQL Service Broker” -Direction Inbound –Protocol TCP –LocalPort 4022 -Action allow
-New-NetFirewallRule -DisplayName “SQL Debugger/RPC” -Direction Inbound –Protocol TCP –LocalPort 135 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Serverï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 1433 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Admin Connectionï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 1434 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Database Managementï¿½ -Direction Inbound ï¿½Protocol UDP ï¿½LocalPort 1434 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Service Brokerï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 4022 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Debugger/RPCï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 135 -Action allow
 #Enabling SQL Analysis Ports
-New-NetFirewallRule -DisplayName “SQL Analysis Services” -Direction Inbound –Protocol TCP –LocalPort 2383 -Action allow
-New-NetFirewallRule -DisplayName “SQL Browser” -Direction Inbound –Protocol TCP –LocalPort 2382 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Analysis Servicesï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 2383 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Browserï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 2382 -Action allow
 #Enabling Misc. Applications
-New-NetFirewallRule -DisplayName “HTTP” -Direction Inbound –Protocol TCP –LocalPort 80 -Action allow
-New-NetFirewallRule -DisplayName “SSL” -Direction Inbound –Protocol TCP –LocalPort 443 -Action allow
-New-NetFirewallRule -DisplayName “SQL Server Browse Button Service” -Direction Inbound –Protocol UDP –LocalPort 1433 -Action allow
+New-NetFirewallRule -DisplayName ï¿½HTTPï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 80 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SSLï¿½ -Direction Inbound ï¿½Protocol TCP ï¿½LocalPort 443 -Action allow
+New-NetFirewallRule -DisplayName ï¿½SQL Server Browse Button Serviceï¿½ -Direction Inbound ï¿½Protocol UDP ï¿½LocalPort 1433 -Action allow
 
 # with the sqlcmd tool installed, login to the server
 # login obviously uses param -S servername\instancename

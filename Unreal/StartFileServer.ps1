@@ -1,6 +1,6 @@
-﻿# © 2017 Soverance Studios
+﻿# © 2018 Soverance Studios
 # Scott McCutchen
-# soverance.com
+# scott.mccutchen@soverance.com
 
 # This script starts the Unreal cook server for consoles, and allows it to accept connections for debugging console games via Visual Studio
 # In Visual Studio, be sure to set up the project Properties correctly

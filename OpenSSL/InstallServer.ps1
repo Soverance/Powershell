@@ -1,4 +1,6 @@
-# 
+# © 2018 Soverance Studios
+# Scott McCutchen
+# scott.mccutchen@soverance.com
 
 # Get the latest version of OpenSSL binaries for Windows:  https://github.com/PowerShell/Win32-OpenSSH/releases
 # Extract the package and put it somewhere more efficient, such as C:\Program Files\OpenSSH\

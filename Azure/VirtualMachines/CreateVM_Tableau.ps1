@@ -1,7 +1,6 @@
-# © 2017 BKV, Inc.
+# Â© 2018 Soverance Studios
 # Scott McCutchen
-# www.bkv.com
-# scott.mccutchen@bkv.com
+# scott.mccutchen@soverance.com
 
 # You must have the Azure Powershell Module installed to use this script,
 # and have logged into your Azure subscription using the Login-AzureRmAccount command.

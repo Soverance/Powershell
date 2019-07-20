@@ -1,7 +1,6 @@
+# © 2018 Soverance Studios
 # Scott McCutchen
-# Soverance Studios
-# 01/20/2017
-# www.soverance.com
+# scott.mccutchen@soverance.com
 #
 # Recycle Application Pools in IIS
 
