@@ -6,8 +6,9 @@ param (
 	[string]$computer = $(throw "-computer is required. Supply a valid computer hostname on your network.")
 )
 
-
-Invoke-Command -ComputerName $computer -ScriptBlock {wuauclt /reportnow}
+# the command "wuauclt /reportnow" used to work here, but apparently is useless on modern operating systems (Server 2016 and later)
+# we use the Get-WUInstall command now instead, which requires the PSWindowsUpdate module to be installed
+Invoke-Command -ComputerName $computer -ScriptBlock {Get-WUInstall -AcceptAll -AutoReboot}
 
 # Other update help...
 
