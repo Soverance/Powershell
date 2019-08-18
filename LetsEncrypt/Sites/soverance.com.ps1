@@ -5,7 +5,7 @@
 # Let's Encrypt Certificate Renewal Automation
 
 # When copying this file to use for a new site, you must modify the $argumentlist variable to include the approriate configuration
-$argumentlist = " -profilename SOVVAULT -dnsname soverance.com -ftpdir ftp://soverance.com/.well-known/acme-challenge/ -user someuser -pass somepassword -IncludeWww -Email -TLS -IISInstall"
+$argumentlist = " -profilename SoveranceVault -dnsname soverance.com -ftpdir ftp://soverance.com/.well-known/acme-challenge/ -user someuser -pass somepass -IncludeWww -TLS"
 
 ########################################
 ##
@@ -13,7 +13,7 @@ $argumentlist = " -profilename SOVVAULT -dnsname soverance.com -ftpdir ftp://sov
 ##
 ########################################
 # define cert request ps1 file
-$certreqfile = "C:\Scripts\Powershell\LetsEncrypt\LE-Certificate.ps1"
+$certreqfile = "C:\Scripts\Powershell\LetsEncrypt\LE-CertificateRequest.ps1"
 # concatenate command
 $command = $certreqfile + $argumentlist
 # run cert request

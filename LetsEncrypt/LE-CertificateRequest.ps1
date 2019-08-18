@@ -306,12 +306,15 @@ try
     Stop-Transcript | Out-Null
 }
 catch
-{
+{    
     Write-Host "$($time) : Error: $($_.Exception.Message)`r`n"
-    $mailbody = "Error: $($_.Exception.Message)`r`n`r`n"
-    $mailbody += "Please see error log for more details @ $($LogFile)"
-    $mailBody += "`r`n`r`nSoverance Support"
-    SendMail -Recipient "support@soverance.net" -Subject "LE Certificate Automation Failure" -MailBody $mailbody
+    if ($Email)
+    {
+        $mailbody = "Error: $($_.Exception.Message)`r`n`r`n"
+        $mailbody += "Please see error log for more details @ $($LogFile)"
+        $mailBody += "`r`n`r`nSoverance Support"
+        SendMail -Recipient "support@soverance.net" -Subject "LE Certificate Automation Failure" -MailBody $mailbody
+    }   
     exit 1
 }
 
