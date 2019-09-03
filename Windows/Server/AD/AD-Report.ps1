@@ -182,8 +182,8 @@ function Export-ADUsers ()
     # This command could take some time, depending on the size of the AD
     $AllADUsers = Get-ADUser -server $domain -Filter * -Properties *
 
-    # Filter the user report for user-friendly data we care about
-    # Find the complete list of properties at: https://social.technet.microsoft.com/wiki/contents/articles/12037.active-directory-get-aduser-default-and-extended-properties.aspx
+    # Find the complete list of user properties at: 
+    # https://social.technet.microsoft.com/wiki/contents/articles/12037.active-directory-get-aduser-default-and-extended-properties.aspx
     $AllADUsers |
     Select-Object @{Label = "First Name";Expression = {$_.GivenName}},
     @{Label = "Last Name";Expression = {$_.Surname}},
@@ -239,29 +239,25 @@ function Test-PrivilegedGroup()
         $DomainObject = Get-ADDomain $domain
         $DomainSID = $DomainObject.DomainSID
 
-		## Carefully chosen from a more complete list at:
-		## https://support.microsoft.com/en-us/kb/243330
-		## Administrator (not a group, just FYI)    - $DomainSid-500
-		## Domain Admins                            - $DomainSid-512
-		## Schema Admins                            - $DomainSid-518
-		## Enterprise Admins                        - $DomainSid-519
-		## Group Policy Creator Owners              - $DomainSid-520
-		## BUILTIN\Administrators                   - S-1-5-32-544
-		## BUILTIN\Account Operators                - S-1-5-32-548
-		## BUILTIN\Server Operators                 - S-1-5-32-549
-		## BUILTIN\Print Operators                  - S-1-5-32-550
-		## BUILTIN\Backup Operators                 - S-1-5-32-551
-		## BUILTIN\Replicators                      - S-1-5-32-552
-		## BUILTIN\Network Configuration Operations - S-1-5-32-556
-		## BUILTIN\Incoming Forest Trust Builders   - S-1-5-32-557
-		## BUILTIN\Event Log Readers                - S-1-5-32-573
-		## BUILTIN\Hyper-V Administrators           - S-1-5-32-578
-		## BUILTIN\Remote Management Users          - S-1-5-32-580
+		# Carefully chosen from a more complete list at:
+		# https://support.microsoft.com/en-us/kb/243330
+		# Administrator (not a group, just FYI)    - $DomainSid-500
+		# Domain Admins                            - $DomainSid-512
+		# Schema Admins                            - $DomainSid-518
+		# Enterprise Admins                        - $DomainSid-519
+		# Group Policy Creator Owners              - $DomainSid-520
+		# BUILTIN\Administrators                   - S-1-5-32-544
+		# BUILTIN\Account Operators                - S-1-5-32-548
+		# BUILTIN\Server Operators                 - S-1-5-32-549
+		# BUILTIN\Print Operators                  - S-1-5-32-550
+		# BUILTIN\Backup Operators                 - S-1-5-32-551
+		# BUILTIN\Replicators                      - S-1-5-32-552
+		# BUILTIN\Network Configuration Operations - S-1-5-32-556
+		# BUILTIN\Incoming Forest Trust Builders   - S-1-5-32-557
+		# BUILTIN\Event Log Readers                - S-1-5-32-573
+		# BUILTIN\Hyper-V Administrators           - S-1-5-32-578
+		# BUILTIN\Remote Management Users          - S-1-5-32-580
 		
-		## FIXME - we report on all these groups for every domain, however
-		## some of them are forest wide (thus the membership will be reported
-		## in every domain) and some of the groups only exist in the
-		## forest root.
 		$PrivilegedGroups = "$($DomainSid)-512", "$($DomainSid)-518",
 		                    "$($DomainSid)-519", "$($DomainSid)-520",
 							"S-1-5-32-544", "S-1-5-32-548", "S-1-5-32-549",
@@ -269,7 +265,7 @@ function Test-PrivilegedGroup()
 							"S-1-5-32-556", "S-1-5-32-557", "S-1-5-32-573",
                             "S-1-5-32-578", "S-1-5-32-580"
         
-        $IsPrivileged = "Generic"   
+        $IsPrivileged = "Standard"   
 
         ForEach($PrivilegedGroup in $PrivilegedGroups) 
 		{
@@ -310,7 +306,6 @@ function Export-ADComputers ()
     # Export all Computer data with all extended properties
     $ADComputers = Get-ADComputer -Server $domain -Filter * -Properties *
 
-    # Filter the Computer report for user-friendly data we care about
     $ADComputers |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "DNS Host Name";Expression = {$_.DNSHostName}},
@@ -319,8 +314,7 @@ function Export-ADComputers ()
     @{Label = "OS Service Pack";Expression = {$_.operatingSystemServicePack}},
     @{Label = "IPv4 Address";Expression = {$_.IPv4Address}},
     @{Label = "Current Image Install Date";Expression = {$_.whenCreated}},
-    # We need a bit of extra effort here as well, to pull the date of when the manufacturer first installed Windows
-    # We'll use the [WMI] type accelerator for the 
+    # We need a bit of extra effort here to pull the date of when the manufacturer first installed Windows, so we'll use the [WMI] type accelerator for the query.
     @{Label = "Manufacturer Install Date";Expression = {ForEach-Object{(([WMI] "").ConvertToDateTime((Get-WmiObject Win32_OperatingSystem -ComputerName $_.Name).InstallDate))}}},
     @{Label = "Enabled";Expression = {$_.Enabled}},
     @{Label = "Distinguished Name";Expression = {$_.DistinguishedName}} |
@@ -335,7 +329,6 @@ function Export-ADDomainControllers ()
     # Export all Domain Controller data
     $ADDCs = Get-ADDomainController -Filter *
 
-    # Filter the Domain Controller report for user-friendly data we care about
     $ADDCs |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Domain";Expression = {$_.Domain}},
@@ -360,7 +353,6 @@ function Export-ADForests ()
     # Export all Forest data
     $ADForests = Get-ADForest -Server $domain
     
-    # Filter the Forest report for user-friendly data we care about
     $ADForests |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Forest Mode";Expression = {$_.ForestMode}},
