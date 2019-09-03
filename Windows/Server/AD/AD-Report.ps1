@@ -319,6 +319,8 @@ function Export-ADComputers ()
     @{Label = "IPv4 Address";Expression = {$_.IPv4Address}},
     @{Label = "Current Image Install Date";Expression = {$_.whenCreated}},
     # We need a bit of extra effort here to pull the date of when the manufacturer first installed Windows, so we'll use the [WMI] type accelerator for the query.
+    # I think this WMI query does not work on remote domains... i.e., when the user running the script is outside the context of the domain being queried
+    # If you want this value, easiest way to get it is to run this report as a user who lives in the domain being reported
     @{Label = "Manufacturer Install Date";Expression = {ForEach-Object{(([WMI] "").ConvertToDateTime((Get-WmiObject Win32_OperatingSystem -ComputerName $_.Name -Credential $creds).InstallDate))}}},
     @{Label = "Enabled";Expression = {$_.Enabled}},
     @{Label = "Distinguished Name";Expression = {$_.DistinguishedName}} |
@@ -380,7 +382,10 @@ function Export-ADOUs ()
     $ADOU |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Distinguished Name";Expression = {$_.DistinguishedName}},
-    @{Label = "Inheritance Blocked";Expression = {(Get-GPInheritance -Target $_ -Credential $creds).GpoInheritanceBlocked}},
+    @{Label = "Inheritance Blocked";Expression = {(Get-GPInheritance -Target $_ -Domain $domain -Credential $creds).GpoInheritanceBlocked}},
+    # this linked GPO output doesn't seem to work correctly when run against a remote domain (i.e., the powershell user running the script is in a different domain than what was specified for the -Domain parameter)
+    # I'm relatively certain it's just running the query within the current PS user's context, which of course returns no GPOs since the ID's don't exist in this context
+    # I think it needs to be "LDAP://$domain/$gpo"
     @{Label = "Linked GPOs";Expression = {$(foreach($gpo in $_.LinkedGroupPolicyObjects){ ForEach-Object { -join ([adsi]"LDAP://$gpo").displayName}}) -join', '}} |
 
     # Export Organizational Unit Report 
