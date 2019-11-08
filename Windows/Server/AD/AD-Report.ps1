@@ -37,15 +37,15 @@
 # Configure this setting to be a "Mail" application on a "Windows Computer".
 # Visit this help document for more information and directions on how to enable this setting:  https://support.google.com/accounts/answer/185833?hl=en
 
-#######################
+##############################
 ##
 ##  Change History & Credits
 ##
-#######################
+##############################
 
 # This script originally created for internal reporting by Soverance Studios - May, 2016 
 
-    # Scott McCutchen  | https://soverance.com  | @soverance	
+#   Scott McCutchen  |  https://soverance.com  |  info@soverance.com  |  Twitter @soverance	
 
 # Updated June 2016 for use with Unique Sports Products AD migration project.
 # Updated September 2016 for use with Georgia Game Developers Association AD migration project.
@@ -103,8 +103,8 @@ function Get-PasswordExpiryInfo()
         [string]$sAMAccountName
     )
     
-    $PSO= Get-ADUserResultantPasswordPolicy -Identity $sAMAccountName -Credential $creds  # store ad user's current password policy
-    $defaultDomainPolicy = Get-ADDefaultDomainPasswordPolicy -Credential $creds   # get and store the domain's current default password policy        
+    $PSO= Get-ADUserResultantPasswordPolicy -Server $domain -Identity $sAMAccountName -Credential $creds  # store ad user's current password policy
+    $defaultDomainPolicy = Get-ADDefaultDomainPasswordPolicy -Server $domain -Credential $creds   # get and store the domain's current default password policy        
     $passwordexpirydefaultdomainpolicy = $defaultDomainPolicy.MaxPasswordAge.Days -ne 0  # make sure the default policy is anything but zero        
                 
     # Collect and store the default domain policy, in case no PSO was applied to the user
@@ -117,7 +117,7 @@ function Get-PasswordExpiryInfo()
     if ($PSO)
     {   
         $PSOMaxPasswordAge = $PSO.MaxPasswordAge.days  # store password age
-        $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$sAMAccountName))" -Credential $creds -properties pwdLastSet).pwdLastSet) # get password last set time
+        $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$sAMAccountName))" -Server $domain -Credential $creds -properties pwdLastSet).pwdLastSet) # get password last set time
         $expirydate = ($pwdlastset).AddDays($PSOMaxPasswordAge) # get expiry date     
         $delta = ($expirydate - (Get-Date)).Days  # store the delta between today and the expiry date to find how many days are remaining
         
@@ -149,7 +149,7 @@ function Get-PasswordExpiryInfo()
     {
         if($passwordexpirydefaultdomainpolicy)            
         {            
-            $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$samaccountname))" -Credential $creds -properties pwdLastSet).pwdLastSet)            
+            $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$samaccountname))" -Server $domain -Credential $creds -properties pwdLastSet).pwdLastSet)            
             $expirydate = ($pwdlastset).AddDays($defaultdomainpolicyMaxPasswordAge)            
             $delta = ($expirydate - (Get-Date)).Days      
             
@@ -205,12 +205,12 @@ function Export-ADUsers ()
     @{Label = "Office";Expression = {$_.OfficeName}},
     @{Label = "Phone";Expression = {$_.TelephoneNumber}},
     @{Label = "Email";Expression = {$_.Mail}},
-    @{Label = "Manager";Expression = {ForEach-Object{(Get-ADUser $_.Manager -server $domain -Credential $creds -Properties DisplayName).DisplayName}}},
+    @{Label = "Manager";Expression = {ForEach-Object{(Get-ADUser $_.Manager -Server $domain -Credential $creds -Properties DisplayName).DisplayName}}},
     @{Label = "Account Status";Expression = {if (($_.Enabled -eq 'TRUE')  ) {'Enabled'} Else {'Disabled'}}}, # the 'if statement replaces $_.Enabled output with a user-friendly readout
     @{Label = "Locked Out";Expression = {$_.LockedOut}},
-    @{Label = "Account Expires";Expression = {(Get-ADUser $_ -server $domain -Credential $creds -Properties AccountExpirationDate).AccountExpirationDate}},
+    @{Label = "Account Expires";Expression = {(Get-ADUser $_ -Server $domain -Credential $creds -Properties AccountExpirationDate).AccountExpirationDate}},
     @{Label = "Last LogOn Date";Expression = {$_.LastLogonDate}},
-    @{Label = "Does Not Require Kerberos Pre-Auth";Expression = {(Get-ADUser $_ -server $domain -Credential $creds -Properties DoesNotRequirePreAuth).DoesNotRequirePreAuth}},        
+    @{Label = "Does Not Require Kerberos Pre-Auth";Expression = {(Get-ADUser $_ -Server $domain -Credential $creds -Properties DoesNotRequirePreAuth).DoesNotRequirePreAuth}},        
     @{Label = "Password Not Required";Expression = {$_.PasswordNotRequired}},
     @{Label = "Password Never Expires";Expression = {$_.PasswordNeverExpires}},
     @{Label = "Password Last Set";Expression = {$_.PasswordLastSet}},
@@ -333,14 +333,14 @@ function Export-ADComputers ()
 function Export-ADDomainControllers ()
 {
     # Export all Domain Controller data
-    $ADDCs = Get-ADDomainController -Filter * -Credential $creds
+    $ADDCs = Get-ADDomainController -Server $domain -Filter * -Credential $creds
 
     $ADDCs |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Domain";Expression = {$_.Domain}},
     @{Label = "Operating System";Expression = {$_.OperatingSystem}},
     @{Label = "Enabled";Expression = {$_.Enabled}},
-    @{Label = "LastChange";Expression = {(Get-ADComputer -Identity $_.Name -server $domain -Credential $creds -Properties whenChanged).whenChanged}},
+    @{Label = "LastChange";Expression = {(Get-ADComputer -Identity $_.Name -Server $domain -Credential $creds -Properties whenChanged).whenChanged}},
     @{Label = "DNS Host Name";Expression = {$_.HostName}},
     @{Label = "Site";Expression = {$_.Site}},
     @{Label = "IPv4 Address";Expression = {$_.IPv4Address}},
@@ -382,7 +382,7 @@ function Export-ADOUs ()
     $ADOU |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Distinguished Name";Expression = {$_.DistinguishedName}},
-    @{Label = "Inheritance Blocked";Expression = {(Get-GPInheritance -Target $_ -Domain $domain -Credential $creds).GpoInheritanceBlocked}},
+    @{Label = "Inheritance Blocked";Expression = {(Get-GPInheritance -Target $_ -Domain $domain -Server $domain -Credential $creds).GpoInheritanceBlocked}},
     # this linked GPO output doesn't seem to work correctly when run against a remote domain (i.e., the powershell user running the script is in a different domain than what was specified for the -Domain parameter)
     # I'm relatively certain it's just running the query within the current PS user's context, which of course returns no GPOs since the ID's don't exist in this context
     # I think it needs to be "LDAP://$domain/$gpo"
