@@ -37,15 +37,15 @@
 # Configure this setting to be a "Mail" application on a "Windows Computer".
 # Visit this help document for more information and directions on how to enable this setting:  https://support.google.com/accounts/answer/185833?hl=en
 
-#######################
+##############################
 ##
 ##  Change History & Credits
 ##
-#######################
+##############################
 
 # This script originally created for internal reporting by Soverance Studios - May, 2016 
 
-    # Scott McCutchen  | https://soverance.com  | @soverance	
+#   Scott McCutchen  |  https://soverance.com  |  info@soverance.com  |  Twitter @soverance	
 
 # Updated June 2016 for use with Unique Sports Products AD migration project.
 # Updated September 2016 for use with Georgia Game Developers Association AD migration project.
@@ -66,6 +66,10 @@ param(
     # Enter the domain name you wish to scan
     [Parameter(Mandatory=$True)]
     [string]$domain,
+    [Parameter(Mandatory=$True)]
+    [string]$domainAdminUser,
+    [Parameter(Mandatory=$True)]
+    [string]$domainAdminPass,
 
     [Parameter(ParameterSetName='Email',Mandatory=$false)]
     [switch]$sendEmail,  # specifying this switch will sent the Excel report via email
@@ -99,8 +103,8 @@ function Get-PasswordExpiryInfo()
         [string]$sAMAccountName
     )
     
-    $PSO= Get-ADUserResultantPasswordPolicy -Identity $sAMAccountName  # store ad user's current password policy
-    $defaultDomainPolicy = Get-ADDefaultDomainPasswordPolicy    # get and store the domain's current default password policy        
+    $PSO= Get-ADUserResultantPasswordPolicy -Server $domain -Identity $sAMAccountName -Credential $creds  # store ad user's current password policy
+    $defaultDomainPolicy = Get-ADDefaultDomainPasswordPolicy -Server $domain -Credential $creds   # get and store the domain's current default password policy        
     $passwordexpirydefaultdomainpolicy = $defaultDomainPolicy.MaxPasswordAge.Days -ne 0  # make sure the default policy is anything but zero        
                 
     # Collect and store the default domain policy, in case no PSO was applied to the user
@@ -113,7 +117,7 @@ function Get-PasswordExpiryInfo()
     if ($PSO)
     {   
         $PSOMaxPasswordAge = $PSO.MaxPasswordAge.days  # store password age
-        $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$sAMAccountName))" -properties pwdLastSet).pwdLastSet) # get password last set time
+        $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$sAMAccountName))" -Server $domain -Credential $creds -properties pwdLastSet).pwdLastSet) # get password last set time
         $expirydate = ($pwdlastset).AddDays($PSOMaxPasswordAge) # get expiry date     
         $delta = ($expirydate - (Get-Date)).Days  # store the delta between today and the expiry date to find how many days are remaining
         
@@ -145,7 +149,7 @@ function Get-PasswordExpiryInfo()
     {
         if($passwordexpirydefaultdomainpolicy)            
         {            
-            $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$samaccountname))" -properties pwdLastSet).pwdLastSet)            
+            $pwdlastset = [datetime]::FromFileTime((Get-ADUser -LDAPFilter "(&(samaccountname=$samaccountname))" -Server $domain -Credential $creds -properties pwdLastSet).pwdLastSet)            
             $expirydate = ($pwdlastset).AddDays($defaultdomainpolicyMaxPasswordAge)            
             $delta = ($expirydate - (Get-Date)).Days      
             
@@ -180,7 +184,7 @@ function Export-ADUsers ()
 {
     # Export AD User data, with all parameters
     # This command could take some time, depending on the size of the AD
-    $AllADUsers = Get-ADUser -server $domain -Filter * -Properties *
+    $AllADUsers = Get-ADUser -Credential $creds -server $domain -Filter * -Properties *
 
     # Find the complete list of user properties at: 
     # https://social.technet.microsoft.com/wiki/contents/articles/12037.active-directory-get-aduser-default-and-extended-properties.aspx
@@ -201,12 +205,12 @@ function Export-ADUsers ()
     @{Label = "Office";Expression = {$_.OfficeName}},
     @{Label = "Phone";Expression = {$_.TelephoneNumber}},
     @{Label = "Email";Expression = {$_.Mail}},
-    @{Label = "Manager";Expression = {ForEach-Object{(Get-ADUser $_.Manager -server $domain -Properties DisplayName).DisplayName}}},
+    @{Label = "Manager";Expression = {ForEach-Object{(Get-ADUser $_.Manager -Server $domain -Credential $creds -Properties DisplayName).DisplayName}}},
     @{Label = "Account Status";Expression = {if (($_.Enabled -eq 'TRUE')  ) {'Enabled'} Else {'Disabled'}}}, # the 'if statement replaces $_.Enabled output with a user-friendly readout
     @{Label = "Locked Out";Expression = {$_.LockedOut}},
-    @{Label = "Account Expires";Expression = {(Get-ADUser $_ -server $domain -Properties AccountExpirationDate).AccountExpirationDate}},
+    @{Label = "Account Expires";Expression = {(Get-ADUser $_ -Server $domain -Credential $creds -Properties AccountExpirationDate).AccountExpirationDate}},
     @{Label = "Last LogOn Date";Expression = {$_.LastLogonDate}},
-    @{Label = "Does Not Require Kerberos Pre-Auth";Expression = {(Get-ADUser $_ -server $domain -Properties DoesNotRequirePreAuth).DoesNotRequirePreAuth}},        
+    @{Label = "Does Not Require Kerberos Pre-Auth";Expression = {(Get-ADUser $_ -Server $domain -Credential $creds -Properties DoesNotRequirePreAuth).DoesNotRequirePreAuth}},        
     @{Label = "Password Not Required";Expression = {$_.PasswordNotRequired}},
     @{Label = "Password Never Expires";Expression = {$_.PasswordNeverExpires}},
     @{Label = "Password Last Set";Expression = {$_.PasswordLastSet}},
@@ -217,7 +221,7 @@ function Export-ADUsers ()
     @{Label = "Password Expiry Date";Expression = {(Get-PasswordExpiryInfo($_.SamAccountName)).ExpiryDate}},
     @{Label = "Password Expiry Days Remaining";Expression = {(Get-PasswordExpiryInfo($_.SamAccountName)).DaysRemaining}},
     # Getting user group info requires a bit more effort, and data must be made user-friendly before display
-    @{Label = "Member Of Groups";Expression = {ForEach-Object{(Get-ADPrincipalGroupMembership $_.SamAccountName | Sort-Object | Select-Object -ExpandProperty Name) -join ', '}}} | 
+    @{Label = "Member Of Groups";Expression = {ForEach-Object{(Get-ADPrincipalGroupMembership $_.SamAccountName -Credential $creds | Sort-Object | Select-Object -ExpandProperty Name) -join ', '}}} | 
 
     # Export User Report
     Export-Excel -Path $ExportPathWithFileName -WorkSheetname Users -AutoSize -AutoFilter -BoldTopRow -FreezeTopRow -ConditionalText $(
@@ -236,7 +240,7 @@ function Test-PrivilegedGroup()
         [Parameter(Mandatory=$True)]
         [string]$groupSID
     )
-        $DomainObject = Get-ADDomain $domain
+        $DomainObject = Get-ADDomain $domain -Credential $creds
         $DomainSID = $DomainObject.DomainSID
 
 		# Carefully chosen from a more complete list at:
@@ -282,13 +286,13 @@ function Test-PrivilegedGroup()
 function Export-ADGroups ()
 {
     # Export all Group data
-    $ADGroups = Get-ADGroup -Server $domain -Filter *
+    $ADGroups = Get-ADGroup -Server $domain -Credential $creds -Filter *
 
     # Filter the Group report for user-friendly data we care about
     $ADGroups |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Category";Expression = {$_.GroupCategory}},
-    @{Label = "User Count";Expression = {(Get-ADGroupMember -Identity $_.Name).Count}},
+    @{Label = "User Count";Expression = {(Get-ADGroupMember -Identity $_.Name -Credential $creds).Count}},
     @{Label = "Scope";Expression = {$_.GroupScope}},
     @{Label = "Restricted Access";Expression = {(Test-PrivilegedGroup($domain)($_.SID))}},
     @{Label = "Distinguished Name";Expression = {$_.DistinguishedName}} |
@@ -304,7 +308,7 @@ function Export-ADGroups ()
 function Export-ADComputers ()
 {
     # Export all Computer data with all extended properties
-    $ADComputers = Get-ADComputer -Server $domain -Filter * -Properties *
+    $ADComputers = Get-ADComputer -Server $domain -Filter * -Credential $creds -Properties *
 
     $ADComputers |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
@@ -315,7 +319,9 @@ function Export-ADComputers ()
     @{Label = "IPv4 Address";Expression = {$_.IPv4Address}},
     @{Label = "Current Image Install Date";Expression = {$_.whenCreated}},
     # We need a bit of extra effort here to pull the date of when the manufacturer first installed Windows, so we'll use the [WMI] type accelerator for the query.
-    @{Label = "Manufacturer Install Date";Expression = {ForEach-Object{(([WMI] "").ConvertToDateTime((Get-WmiObject Win32_OperatingSystem -ComputerName $_.Name).InstallDate))}}},
+    # I think this WMI query does not work on remote domains... i.e., when the user running the script is outside the context of the domain being queried
+    # If you want this value, easiest way to get it is to run this report as a user who lives in the domain being reported
+    @{Label = "Manufacturer Install Date";Expression = {ForEach-Object{(([WMI] "").ConvertToDateTime((Get-WmiObject Win32_OperatingSystem -ComputerName $_.Name -Credential $creds).InstallDate))}}},
     @{Label = "Enabled";Expression = {$_.Enabled}},
     @{Label = "Distinguished Name";Expression = {$_.DistinguishedName}} |
 
@@ -327,14 +333,14 @@ function Export-ADComputers ()
 function Export-ADDomainControllers ()
 {
     # Export all Domain Controller data
-    $ADDCs = Get-ADDomainController -Filter *
+    $ADDCs = Get-ADDomainController -Server $domain -Filter * -Credential $creds
 
     $ADDCs |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Domain";Expression = {$_.Domain}},
     @{Label = "Operating System";Expression = {$_.OperatingSystem}},
     @{Label = "Enabled";Expression = {$_.Enabled}},
-    @{Label = "LastChange";Expression = {(Get-ADComputer -Identity $_.Name -server $domain -Properties whenChanged).whenChanged}},
+    @{Label = "LastChange";Expression = {(Get-ADComputer -Identity $_.Name -Server $domain -Credential $creds -Properties whenChanged).whenChanged}},
     @{Label = "DNS Host Name";Expression = {$_.HostName}},
     @{Label = "Site";Expression = {$_.Site}},
     @{Label = "IPv4 Address";Expression = {$_.IPv4Address}},
@@ -351,7 +357,7 @@ function Export-ADDomainControllers ()
 function Export-ADForests ()
 {
     # Export all Forest data
-    $ADForests = Get-ADForest -Server $domain
+    $ADForests = Get-ADForest -Server $domain -Credential $creds
     
     $ADForests |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
@@ -371,12 +377,15 @@ function Export-ADForests ()
 function Export-ADOUs ()
 {
     #Export all Organizational Unit Information
-    $ADOU = Get-ADOrganizationalUnit -Server $domain -Filter *
+    $ADOU = Get-ADOrganizationalUnit -Server $domain -Filter * -Credential $creds
     
     $ADOU |
     Select-Object @{Label = "Name";Expression = {$_.Name}},
     @{Label = "Distinguished Name";Expression = {$_.DistinguishedName}},
-    @{Label = "Inheritance Blocked";Expression = {(Get-GPInheritance -Target $_).GpoInheritanceBlocked}},
+    @{Label = "Inheritance Blocked";Expression = {(Get-GPInheritance -Target $_ -Domain $domain -Server $domain -Credential $creds).GpoInheritanceBlocked}},
+    # this linked GPO output doesn't seem to work correctly when run against a remote domain (i.e., the powershell user running the script is in a different domain than what was specified for the -Domain parameter)
+    # I'm relatively certain it's just running the query within the current PS user's context, which of course returns no GPOs since the ID's don't exist in this context
+    # I think it needs to be "LDAP://$domain/$gpo"
     @{Label = "Linked GPOs";Expression = {$(foreach($gpo in $_.LinkedGroupPolicyObjects){ ForEach-Object { -join ([adsi]"LDAP://$gpo").displayName}}) -join', '}} |
 
     # Export Organizational Unit Report 
@@ -425,6 +434,10 @@ $ExportPathWithFileName = $exportpath + "\AD_Report_" + $domain + "-" + (Get-Dat
  
 # The AD Module must be imported before AD-specific commands can be run
 Import-Module ActiveDirectory
+Import-Module ImportExcel
+
+$pass = ConvertTo-SecureString -String $domainAdminPass -AsPlainText -Force
+$creds = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $domainAdminUser, $pass
 
 # Run Functions
 Export-ADUsers
