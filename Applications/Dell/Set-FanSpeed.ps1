@@ -46,6 +46,10 @@
 # CPU 50%  - under 50ºC ideal, 50-65ºC good enough, 65-75ºC No good, more than 75ºC disaster
 # CPU 100%  - under 60ºC ideal, 60-80ºC good enough, 80-85ºC No good, more than 85ºC disaster
 
+# if you run this script as a scheduled task, you can keep an eye on your server's current temperature and adjust the fan speed accordingly
+# I like to run this task every 5 minutes, with an average temp threshold of 45, critical temp threshold of 55
+# which tends to keep my R230 on the "low 20%" setting at most times.
+
 param 
 (
     [Parameter(Mandatory=$True)]
