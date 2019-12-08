@@ -75,18 +75,24 @@ try
 
     $ipmiSet = @("raw", "0x30", "0x30")
     $ipmiSetManual = @("0x01", "0x00")
-    $ipmiSet20 = @("0x02", "0xff", "0x14");  # 20% seems to maintain about 12 CFM @ 3700 RPM through my Dell R230, and seems to hold idle CPU temp around 44ºC (fan noise at this level is nearly unnoticeable, quite comfortable for working in the same room)
-    $ipmiSet25 = @("0x02", "0xff", "0x19");  # 25% seems to maintain about 14 CFM through my Dell R230, and seems to hold idle CPU temp around 41ºC (when stored with ambient intake temperature of about 23ºC / 72ºF)
+    $ipmiSet20 = @("0x02", "0xff", "0x14");  # 20% seems to maintain about 12 CFM @ 3700 RPM through my Dell R230, and seems to hold idle CPU temp around 44ºC (fan noise at this level is unnoticeable, and thus ideal)
+    $ipmiSet25 = @("0x02", "0xff", "0x19");  # 25% seems to maintain about 14 CFM @ 4800 RPM through my Dell R230, and seems to hold idle CPU temp around 41ºC (when stored with ambient intake temperature of about 23ºC / 72ºF)
     $ipmiSet30 = @("0x02", "0xff", "0x1e"); # 30%
     $ipmiSet35 = @("0x02", "0xff", "0x23"); # 35%
     $ipmiSet38 = @("0x02", "0xff", "0x26"); # 38%
     $ipmiSetMid = @("0x02", "0xff", "0x32"); # 50% seems to maintain about 25 CFM @ 9600 RPM through my Dell R230, and seems to hold idle CPU temp around 36ºC (fan noise at this level is loud enough to be distracting)
     $ipmiSetMax = @("0x02", "0xff", "0x64"); # 100%
 
-    Write-Output "Average Temperature threshold set to $($AverageTempThreshold) degrees."
-    Write-Output "Critical Temperature threshold set to $($CriticalTempThreshold) degrees."
-    Write-Output "Checking server temperature..."
+    $source = "Soverance Automation"
 
+    # check the application event log for our custom source - create it if necessary
+    if (!(Get-EventLog -LogName Application -Source $source))
+    {
+        New-EventLog -LogName Application -Source $source
+    }
+
+    Write-EventLog -LogName Application -Source $source -EntryType Information -EventID 100 -Message "Set-FanSpeed called for $($iDRACAddress).  Average temperature threshold set to $($AverageTempThreshold) C.  Critical temperature threshold set to $($CriticalTempThreshold) C." 
+   
     # get the current server temperature, as reported by the iDRAC sensors
     $val = & $ipmiExe $ipmiParams $ipmiGet
     # I'll have to look at this more, but for now we can just split up the returned output based on which line has the relevant sensor
@@ -100,31 +106,31 @@ try
     $inletval = "" + $inletval #tostring
     $inletval = $inletval.Split('|')[4]
     $inletval = $inletval.Trim().Split(' ')[0]
-    Write-Output "Inlet Sensor current temp: $($inletval)ºC"
-    Write-Output "CPU Sensor current temp: $($cpuval)ºC"
+    
+    Write-EventLog -LogName Application -Source $source -EntryType Information -EventID 101 -Message "Temperature sensor reporting for $($iDRACAddress):  Inlet Temperature = $($inletval) C.  CPU Temperature = $($cpuval) C." 
 
-    # activate manual fan control
+    # activate manual fan control on the idrac
     & $ipmiExe $ipmiParams $ipmiSet $ipmiSetManual
 
-    # evaluate current temperature and adjust accordingly
+    # evaluate current temperature and adjust fan speed accordingly
     if ($cpuval -ge $CriticalTempThreshold)
     {
-        "Temperature critical -> increasing RPM setting to MAX @ 100%";
-        & $ipmiExe $ipmiParams $ipmiSet $ipmiSetMax
+        Write-EventLog -LogName Application -Source $source -EntryType Warning -EventID 104 -Message "Temperature sensor reporting for $($iDRACAddress):  Current CPU Temperature of $($cpuval) C exceeds critical threshold. Increasing RPM setting to MAX 100%." 
+        & $ipmiExe $ipmiParams $ipmiSet $ipmiSetMax        
     }    
     if ($cpuval -gt $AverageTempThreshold -and $cpuval -lt $CriticalTempThreshold)
     {
-        "Temperature too high -> increasing RPM setting to MID @ 50%";
+        Write-EventLog -LogName Application -Source $source -EntryType Information -EventID 103 -Message "Temperature sensor reporting for $($iDRACAddress):  Current CPU Temperature of $($cpuval) C exceeds average threshold. Increasing RPM setting to MID 50%." 
         & $ipmiExe $ipmiParams $ipmiSet $ipmiSetMid
     }
     if ($cpuval -le $AverageTempThreshold)
     {
-        "Temperature OK -> using LOW RPM setting @ 20%"
+        Write-EventLog -LogName Application -Source $source -EntryType Information -EventID 102 -Message "Temperature sensor reporting for $($iDRACAddress):  Current CPU Temperature of $($cpuval) C is within normal parameters.  Using RPM setting of LOW 20%." 
         & $ipmiExe $ipmiParams $ipmiSet $ipmiSet20
     }
 }
 catch
 {
-    Write-Output "ERROR in $($MyInvocation.MyCommand) on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
+    Write-EventLog -LogName Application -Source $source -EntryType Error -EventID 100 -Message "ERROR in $($MyInvocation.MyCommand) on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
     exit 1
 }
