@@ -1,3 +1,0 @@
-By installing this network profile, you are asserting that you are indeed an employee of Soverance Studios or any of it's subsidiaries, and have been given permission from the Soverance IT Department to install and connect to this solution.
-
-If you are not an employee of Soverance Studios, you do not have permission to install this solution.  Please immediately remove it from your machine.
