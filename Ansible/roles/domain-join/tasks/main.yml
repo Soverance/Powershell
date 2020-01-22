@@ -1,0 +1,19 @@
+---
+- name: Domain Join
+  win_domain_membership:
+    dns_domain_name: "{{ domain_join_domain_name }}"
+    domain_admin_user: "{{ domain_join_admin_user }}"
+    domain_admin_password: "{{ domain_join_admin_password }}"
+    domain_ou_path: "{{ domain_join_ou }}"
+    state: domain
+  when: domain_join_domain_name is defined
+  register: domain_join_state
+  tags:
+    - configuration
+    - packages
+
+- name: Reboot to complete domain join
+  when: domain_join_state.reboot_required   
+  win_reboot:
+    reboot_timeout: 300
+    post_reboot_delay: 300 

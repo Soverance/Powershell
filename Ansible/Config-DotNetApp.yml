@@ -1,0 +1,17 @@
+- hosts: all
+  any_errors_fatal: true
+  tasks:
+    - win_ping:
+
+- hosts: all
+  any_errors_fatal: true
+  roles:    
+    - { role: set-hostname } 
+    - { role: domain-join } 
+    - { role: enable-rdp }
+    - { role: dotnet-firewall }
+    - { role: dotnet-roles }    
+    - { role: import-certificate }
+    - { role: dotnet-configure-iis }
+    #- { role: set-wallpaper }
+        

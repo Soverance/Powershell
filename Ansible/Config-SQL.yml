@@ -1,0 +1,18 @@
+- hosts: all
+  any_errors_fatal: true
+  tasks:
+    - win_ping:
+
+- hosts: all
+  any_errors_fatal: true
+  roles:       
+    - { role: set-hostname }
+    - { role: domain-join } 
+    - { role: import-certificate }
+    - { role: enable-rdp }
+    - { role: sql-firewall }
+    - { role: sql-roles }
+    - { role: sql-configure-data-directory }
+    - { role: sql-install }
+    - { role: sql-install-sqlcmd }
+    

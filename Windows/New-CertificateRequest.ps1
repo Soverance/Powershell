@@ -1,7 +1,7 @@
 # AutoCluster Deployment Tools
 # Scott McCutchen
 # DevOps Engineer
-# scott.mccutchen@m3as.com
+# scott.mccutchen@soverance.com
 
 # This script will create a new certificate signing request for Server Authentication certificates
 

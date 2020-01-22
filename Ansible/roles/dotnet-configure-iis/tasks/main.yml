@@ -1,0 +1,63 @@
+# configure IIS for .NET App
+
+---
+- name: Remove the default IIS Website 
+  # (Which shouldn't be created in the first place but w/e)
+  # https://github.com/ansible/ansible/issues/39332#issuecomment-384430847
+  win_iis_website:
+    name: "Default Web Site"
+    state: absent
+
+- name: Create WebApp Folder
+  win_file: 
+    path: "{{ webapp_path }}"
+    state: directory
+
+- name: Create AppPool
+  win_iis_webapppool:
+    name: Insight
+    state: started
+
+- name: Create IIS Website
+  win_iis_website:
+    name: Insight
+    application_pool: Insight
+    physical_path: "{{ webapp_path }}"
+    state: started
+
+- name: Remove default HTTP binding
+  win_iis_webbinding:
+    name: Insight    
+    port: 80
+    protocol: http
+    state: absent
+
+- name: Configure IIS SSL Binding
+  win_iis_webbinding:
+    name: Insight    
+    #host_header: "{{ webapp_hostname }}"
+    ip: "{{ computer_ip }}"
+    port: 443
+    protocol: https
+    #ssl_flags: 1  # enables SNI  # this is broken as of Ansible 2.8.5 - https://github.com/ansible/ansible/issues/51967
+    certificate_store_name: My
+    certificate_hash: "{{ certificate_thumbprint }}"
+    state: present
+
+- name: Grant IIS_IUSRS Permissions on WebApp
+  win_acl:
+    user: IIS_IUSRS
+    path: "{{ webapp_path }}"
+    type: allow
+    rights: Modify
+    inherit: ContainerInherit, ObjectInherit
+    state: present
+
+- name: Grant AppPool Identity Permissions on WebApp
+  win_acl:
+    user: IIS AppPool\Insight
+    path: "{{ webapp_path }}"
+    type: allow
+    rights: Modify
+    inherit: ContainerInherit, ObjectInherit
+    state: present

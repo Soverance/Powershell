@@ -1,0 +1,46 @@
+# installs Microsoft Command Line Utilities for SQL Server
+# you need version 13.1 or higher to support Always Encrypted and Azure Active Directory authentication modes
+# this script uses a download of version 14.0 from https://www.microsoft.com/en-us/download/details.aspx?id=53591
+# The SqlCmd tool has a dependency on the Microsoft ODBC Driver for SQL Server, which should be installed as part of all SQL Server installations
+
+---
+- name: Copy SqlCmd installer to node from source control
+  win_copy:
+      src: MsSqlCmdLnUtils.msi
+      dest: "{{ sqlcmd_installer }}"
+
+- name: Install Microsoft SQL Server Command Line Utilities
+  win_package:
+    path: "{{ sqlcmd_installer }}"
+    arguments: "/passive IACCEPTMSSQLCMDLNUTILSLICENSETERMS=YES"
+    state: present
+
+- name: Add SqlCmd.exe to Environment Variable Path
+  win_command: powershell.exe -
+  args:
+    stdin: "[Environment]::SetEnvironmentVariable(\"Path\", $env:Path + \";C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\130\\Tools\\Binn\\\", [EnvironmentVariableTarget]::Machine)"
+
+# this command requires the credentials of a domain user who is part of the SQL-Admins group connected to this instance
+- name: Enable remote connections in the SQL instance
+  win_command: powershell.exe -
+  args:
+    stdin: "$pass = ConvertTo-SecureString {{ sql_admin_pass }} -AsPlainText -Force; $creds = New-Object System.Management.Automation.PSCredential({{ sql_admin_user }}, $pass); $session = New-PSSession localhost -Credential $creds; Invoke-Command -Session $session -ScriptBlock {sqlcmd -S {{ full_instance_name }} -Q \"sys.sp_configure N'remoteaccess', N'1'\"}"
+
+# this command requires the credentials of a domain user who is part of the SQL-Admins group connected to this instance
+- name: Reconfigure and override remote connection configuration.
+  win_command: powershell.exe -
+  args:
+    stdin: "$pass = ConvertTo-SecureString {{ sql_admin_pass }} -AsPlainText -Force; $creds = New-Object System.Management.Automation.PSCredential({{ sql_admin_user }}, $pass); $session = New-PSSession localhost -Credential $creds; Invoke-Command -Session $session -ScriptBlock {sqlcmd -S {{ full_instance_name }} -Q \"RECONFIGURE WITH OVERRIDE\"}"
+
+# this command requires the credentials of a domain user who is part of the SQL-Admins group connected to this instance
+# this apparently is not working...?
+- name: Add SQL Admins group to Model Database
+  win_command: powershell.exe -
+  args:
+    stdin: "$pass = ConvertTo-SecureString {{ sql_admin_pass }} -AsPlainText -Force; $creds = New-Object System.Management.Automation.PSCredential({{ sql_admin_user }}, $pass); $session = New-PSSession localhost -Credential $creds; Invoke-Command -Session $session -ScriptBlock {sqlcmd -S {{ full_instance_name }} -Q \"USE model; CREATE USER [{{ sql_admin_group }}] FROM LOGIN [{{ sql_admin_group }}]; EXEC sp_addrolemember 'db_owner', [{{ sql_admin_group }}];\"}"
+
+
+- name: Reboot to finish SQL Server remote access configuration.
+  win_reboot:
+    reboot_timeout: 300  
+    post_reboot_delay: 300 

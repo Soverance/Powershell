@@ -1,0 +1,23 @@
+# set windows wallpaper
+---
+- name: Copy custom wallpaper to the server
+  win_copy:
+    src: qubetown-background.jpg
+    dest: C:\Users\Public\Pictures\qubetown-background.jpg
+
+- name: Set Custom Desktop Background Image
+  win_regedit:
+    path: HKCU:\Control Panel\Desktop
+    name: WallPaper
+    data: "C:\\Users\\Public\\Pictures\\qubetown-background.jpg"
+    type: string
+    state: "present"
+  register: register_wallpaper
+  tags:
+    - configuration
+
+# immediately force change to desktop wallpaper
+- name: Update User System Parameters
+  win_command: powershell.exe -
+  args:
+    stdin: "rundll32.exe user32.dll,UpdatePerUserSystemParameters"

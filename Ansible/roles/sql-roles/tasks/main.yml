@@ -1,0 +1,70 @@
+# enable necessary windows roles & features for SQL Server HA Clusters
+
+---
+- name: Enable .NET Framework
+  win_feature:
+    name:
+      - Net-Framework-Core
+      - Net-Framework-Features      
+      #- Net-Framework-45-Core
+      #- Net-Framework-45-Features
+    state: present
+  register: framework_install
+
+- name: Enable SNMP
+  win_feature:
+    name:
+      - SNMP-Service
+      - SNMP-WMI-Provider
+      - RSAT-SNMP
+    state: present
+    include_sub_features: True
+    include_management_tools: True
+  register: snmp_install
+
+- name: Start the SNMP Service
+  win_service:
+    name: SNMP
+    start_mode: auto
+    state: started
+
+- name: Enable Windows Failover Clustering
+  win_feature:
+    name: Failover-Clustering      
+    state: present
+    include_sub_features: True
+    include_management_tools: True
+  register: cluster_install
+
+- name: Enable RSAT Clustering Management Tools
+  win_feature:
+    name: 
+      - RSAT-Clustering-Mgmt
+      - RSAT-Clustering-PowerShell
+    state: present
+    include_sub_features: True
+    include_management_tools: True
+
+# - name: Start the Cluster Service
+#   win_service:
+#     name: ClusSvc
+#     start_mode: auto
+#     state: started
+
+# you may eventually need to specify a -StaticAddress param for New-Cluster, but it should work via DHCP without it
+# this command may produce a warning because the VMs have only a single NIC, and because we don't configure a witness server
+# no-witness configurations are vastly improved in Server 2019
+#- name: Configure Windows Cluster
+#  win_command: powershell.exe New-Cluster -Name SQLCluster001 -Node {{ node_array }} -AdministrativeAccessPoint ActiveDirectoryAndDns -Force
+
+- name: Reboot to finish Failover Clustering installation
+  win_reboot:
+  when: cluster_install.reboot_required
+
+# you might install .net framework here, but it's probably already pre-installed in the template
+
+# - name: Start the ASP.NET State Service
+#   win_service:
+#     name: aspnet_state
+#     start_mode: auto
+#     state: started

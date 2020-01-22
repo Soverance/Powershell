@@ -1,0 +1,25 @@
+# update windows hostname
+# you'll throw an error if you pass a hostname longer than 15 characters, because the NetBIOS name is still limited to 15 bytes
+# the command prompts the user to confirm if shortening the hostname to 15 characters is acceptable, since this can cause conflicts in name resolution
+# ansible doesn't support user interaction, so this command will always fail if the name specified is greater than 15 characters
+---
+- name: Set Hostname
+  win_domain_membership:
+    hostname: "{{ computer_hostname }}"
+    domain_admin_user: ""
+    domain_admin_password: ""
+    workgroup_name: WORKGROUP
+    state: workgroup
+  # this 'when' statement causes an error if you have to REDEPLOY this role via TFS/ADS for any reason.  
+  # Subsequent deployments will cause the hostname string to be empty, prompting failure
+  # not sure on how to resolve this just yet - confirmed it's still a problem in ADS
+  # See this Stack Overflow post for more information on differences between ansible default vars
+  # https://stackoverflow.com/questions/45908067/whats-the-difference-between-inventory-hostname-and-ansible-hostname
+  when: ansible_env.COMPUTERNAME != computer_hostname|upper  
+  register: name_state
+
+- name: Reboot to complete hostname change
+  when: name_state.changed
+  win_reboot:
+    reboot_timeout: 300  
+    post_reboot_delay: 300 

@@ -1,0 +1,232 @@
+# update windows firewall
+# this role opens the firewall ports necessary for our clusters
+# Most of the ports opened by this script are determined through the Sisense Communication Ports documentation
+# https://documentation.sisense.com/latest/getting-started/commportsmulti.htm
+
+# NOTE:  The WinRM ports 5985 and 5986 should also be opened.  However, those ports should be opened manually during VM template creation, and so they are excluded here
+
+---
+# SMB is used for Sisense Orchestrator    
+- name: Allow SMB
+  win_firewall_rule:
+    name: SMB
+    localport: 445
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes
+
+# Sisense product licensing service
+- name: Allow Sisense Oxygen
+  win_firewall_rule:
+    name: Sisense Oxygen
+    localport: 31112
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes
+
+# Sisense Elasticube build/distribution service    
+- name: Allow Sisense Orchestrator Ecube Distribution
+  win_firewall_rule:
+    name: Sisense Orchestrator Ecube Distribution
+    localport: 137-139
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes
+
+# this range is also used for Sisense.ECMS
+- name: Allow Sisense Orchestrator Ecube Build/Attach/Detach
+  win_firewall_rule:
+    name: Sisense Orchestrator Ecube Build/Attach/Detach
+    localport: 811-812
+    action: allow
+    direction: out
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes
+
+# Sisense message bus (RabbitMQ)
+- name: Allow Sisense Broker
+  win_firewall_rule:
+    name: Sisense Broker
+    localport: 5672,15672
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+    
+- name: Allow Sisense Broker TLS
+  win_firewall_rule:
+    name: Sisense Broker TLS
+    localport: 5671,15671
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+- name: Allow Sisense Broker Discovery
+  win_firewall_rule:
+    name: Sisense Broker Discovery
+    localport: 25672
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+- name: Allow Sisense Broker ERL
+  win_firewall_rule:
+    name: Sisense Broker ERL
+    localport: 4369
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense Discovery
+- name: Allow Sisense Discovery
+  win_firewall_rule:
+    name: Sisense Discovery
+    localport: 2181,2888,3888
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense Repository
+- name: Allow Sisense Repository
+  win_firewall_rule:
+    name: Sisense Repository
+    localport: 27018
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense Shipper - ships files to sisense logging service
+- name: Allow Sisense Shipper
+  win_firewall_rule:
+    name: Sisense Shipper
+    localport: 5052
+    action: allow
+    direction: out
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense Connectors framework .NET
+- name: Allow Sisense Connectors .NET
+  win_firewall_rule:
+    name: Sisense Connectors .NET
+    localport: 8090,8098
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense Connectors framework JAVA
+- name: Allow Sisense Connectors JAVA
+  win_firewall_rule:
+    name: Sisense Connectors JAVA
+    localport: 8095,9000-9010
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense ECM Server - Elasticube/Schema/Build mgmt
+# this range is also used for Sisense.ECMLogs
+# this range is also used for Sisense.Galaxy
+# this range is also used for Sisense IIS services
+# this range is also used for Sisense.Configuration
+# this range is also used for Sisense Identity
+# this range is also used for Sisense.Plugins
+# this range is also used for Sisense.SPE
+# this range is also used for Sisense.StorageManager
+# this range is also used for Sisense.Usage
+# this range is also used for Sisense.Pivot2
+- name: Allow Sisense Dynamic Range
+  win_firewall_rule:
+    name: Sisense Dynamic Range
+    localport: 15000-15050
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense IIS 
+- name: Allow Sisense IIS
+  win_firewall_rule:
+    name: Sisense IIS
+    localport: 14996
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense Gateway
+# primary entry point and API router
+- name: Allow Sisense Gateway
+  win_firewall_rule:
+    name: Sisense Gateway
+    localport: 8081
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes 
+
+# Sisense SSL Gateway
+# SSL entry point and API router
+- name: Allow Sisense SSL Gateway
+  win_firewall_rule:
+    name: Sisense SSL Gateway
+    localport: 443
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+# SSL entry point and API router
+- name: Allow Sisense Internal SSL Gateway
+  win_firewall_rule:
+    name: Sisense Internal SSL Gateway
+    localport: 8443
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 

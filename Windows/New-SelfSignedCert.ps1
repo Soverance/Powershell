@@ -1,7 +1,7 @@
 # AutoCluster Deployment Tools
 # Scott McCutchen
 # DevOps Engineer
-# scott.mccutchen@m3as.com
+# scott.mccutchen@soverance.com
 
 # This script will create a new self-signed certificate on the local machine, and then export the cert so that it can be installed elsewhere
 

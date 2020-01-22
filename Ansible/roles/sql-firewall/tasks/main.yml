@@ -1,0 +1,131 @@
+# update windows firewall
+# this role opens the firewall ports necessary for our clusters
+# Most of the ports opened by this script are determined through the Microsoft SQL Server Documentation:
+# https://docs.microsoft.com/en-us/sql/sql-server/install/configure-the-windows-firewall-to-allow-sql-server-access?view=sql-server-2017
+
+# NOTE:  The WinRM ports 5985 and 5986 should also be opened.  However, those ports should be opened manually during VM template creation, and so they are excluded here
+
+---
+# ansible just sucks sometimes, like here where you can't specify "any" protocol if you specify a localport
+# https://github.com/ansible/ansible/issues/31576
+- name: Allow SMB - 445 TCP
+  win_firewall_rule:
+    name: SMB
+    localport: 445
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes
+
+- name: Allow HTTP - 80 TCP
+  win_firewall_rule:
+    name: HTTP
+    localport: 80
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow SSL - 443 TCP
+  win_firewall_rule:
+    name: HTTPS
+    localport: 443
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow SQL Server Default Instance - 1433 TCP
+  win_firewall_rule:
+    name: SQL Default
+    localport: 1433
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow SQL Server Button Browser Service - 1433 UDP
+  win_firewall_rule:
+    name: SQL Button Browser
+    localport: 1433
+    action: allow
+    direction: in
+    protocol: udp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+# the SQL DAC is disabled by default, even if the port is open
+- name: Allow SQL Dedicated Admin Connection - 1434 TCP
+  win_firewall_rule:
+    name: SQL DAC
+    localport: 1434
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow SQL Browser Service - 1434 UDP
+  win_firewall_rule:
+    name: SQL Browser Service
+    localport: 1434
+    action: allow
+    direction: in
+    protocol: udp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow SQL Service Broker - 4022 TCP
+  win_firewall_rule:
+    name: SQL Service Broker
+    localport: 4022
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow Transact-SQL Debugger - 135 TCP
+  win_firewall_rule:
+    name: SQL TSQL
+    localport: 135
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow Always On Virtual Network Name - 1764 TCP
+  win_firewall_rule:
+    name: SQL AO VNN
+    localport: 1764
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+- name: Allow Always On Availability Group Endpoint - 135 TCP
+  win_firewall_rule:
+    name: SQL AG Endpoint
+    localport: 135
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 

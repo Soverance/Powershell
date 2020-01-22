@@ -1,0 +1,7 @@
+This is a dummy file to make sure this directory exists in TFS/ADS artifacts.  
+
+Without this file, the folder would be empty when built by the pipeline, and thus excluded from the final build artifact.  
+
+######################################################
+
+The inventories directory is used for storing dynamically generated Ansible inventory files related to a deployment.

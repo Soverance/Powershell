@@ -7,6 +7,9 @@
 # this certificate was manually generated and self-signed
 # it is installed via Group Policy, in the same GPO that runs this script at startup
 
+# enter the following command to list all current winrm listeners:
+# winrm e winrm/config/listener
+
 try {
     
     if (!(Get-EventLog -LogName Application -Source "WinRM GPO"))
@@ -15,9 +18,13 @@ try {
     }
 
     $duration = 5
+    #$dnsname = $env:COMPUTERNAME + "." + $env:USERDNSDOMAIN
     $dnsname = $env:COMPUTERNAME
 
     $cert = New-SelfSignedCertificate -Subject $dnsname -DnsName $dnsname -CertStoreLocation "cert:\LocalMachine\My" -KeyUsage KeyEncipherment,DataEncipherment,KeyAgreement -Type SSLServerAuthentication -KeyAlgorithm RSA -HashAlgorithm SHA256 -Provider "Microsoft Enhanced Cryptographic Provider v1.0" -KeyLength 2048 -KeyExportPolicy Exportable -NotAfter (Get-Date).AddYears($duration)
+    
+    # this is the thumbprint for a self-signed certificate distributed via GPO
+    #$certThumbprint = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
     New-Item WSMan:\localhost\listener -Transport HTTPS -Address * -CertificateThumbPrint $cert.Thumbprint -Force
 

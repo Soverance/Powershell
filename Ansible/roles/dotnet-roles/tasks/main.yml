@@ -1,0 +1,63 @@
+# enable necessary windows roles & features for .NET Applications
+---
+- name: Enable Windows features
+  win_feature:
+    name:
+      - Web-Server
+      - Web-WebServer
+      - Web-Common-Http
+      - Web-Dir-Browsing
+      - Web-Http-Errors
+      - Web-Static-Content
+      - Web-Health
+      - Web-Http-Logging
+      - Web-Security
+      - Web-Performance
+      - Web-Stat-Compression
+      - Web-Dyn-Compression
+      - Web-App-Dev
+      - Web-Net-Ext45
+      - Web-AppInit
+      - Web-Asp-Net45
+      - Web-ISAPI-Ext
+      - Web-ISAPI-Filter
+      - Web-Includes
+      - Web-WebSockets
+      - Web-Mgmt-Tools
+      - Web-Mgmt-Service
+      - Net-Framework-45-Features
+      - Net-Framework-45-Core
+      - Net-Framework-45-ASPNET
+      - NET-WCF-Services45
+      - NET-WCF-HTTP-Activation45
+      - NET-WCF-TCP-PortSharing45
+      - Web-Scripting-Tools     
+    state: present
+  register: role_install
+
+- name: Reboot if roles or features require it
+  win_reboot:
+  when: role_install.reboot_required
+
+- name: Start the ASP.NET State Service
+  win_service:
+    name: aspnet_state
+    start_mode: auto
+    state: started
+
+- name: Enable SNMP
+  win_feature:
+    name:
+      - SNMP-Service
+      - SNMP-WMI-Provider
+      - RSAT-SNMP
+    state: present
+    include_sub_features: True
+    include_management_tools: True
+  register: snmp_install
+
+- name: Start the SNMP Service
+  win_service:
+    name: SNMP
+    start_mode: auto
+    state: started

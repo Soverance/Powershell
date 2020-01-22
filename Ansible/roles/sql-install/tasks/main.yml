@@ -1,0 +1,56 @@
+# installs SQL Server from an ISO 
+# This script assumes you have downloaded a recent ISO of SQL Server from Microsoft,
+# and then pre-copied it to a specified location in the VM template
+
+---
+- name: Mount SQL Server Installation Media
+  win_disk_image:
+    image_path: "{{ install_media }}"
+    state: present
+  register: mounted_disk
+
+# for a complete list of installation parameters, view this documentation:
+#  https://docs.microsoft.com/en-us/sql/database-engine/install-windows/install-sql-server-from-the-command-prompt
+- name: Install SQL Server
+  win_package:
+    path: "{{ mounted_disk.mount_paths[0] }}setup.exe"
+    #product_id: "{a667bcac-6b8f-46ef-9906-2f1213007566}"  # SQL Server 2017 Product Family Code @ HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft SQL Server SQL2017
+    product_id: "{405252DC-ADF7-4BC8-95F5-F89DE513DD62}"  # Microsoft SQL Server 2017 Setup (English)
+    arguments: 
+      - /Q
+      - /ACTION=Install
+      - /ENU
+      - /FEATURES=SQLEngine,FullText,Replication
+      - /INSTANCENAME={{ instance_name }}
+      # in a standard installation you would use NT AUTHORITY\SYSTEM as the sql service account, without specifying the password
+      #- /SQLSVCACCOUNT={{ sql_svc_user }}  
+      - /SQLSVCACCOUNT=NT AUTHORITY\SYSTEM  
+      #- /SQLSVCPASSWORD={{ sql_admin_pass }}  
+      - /SQLSYSADMINACCOUNTS={{ sql_admin_group }}
+      # in a standard installation you would use NT AUTHORITY\Network Service as the agent service account, without specifying the password
+      #- /AGTSVCACCOUNT={{ agt_svc_user }}  
+      - /AGTSVCACCOUNT=NT AUTHORITY\Network Service  
+      #- /AGTSVCPASSWORD={{ sql_admin_pass }}  
+      #- /ADDCURRENTUSERASSQLADMIN  # supposed to add the AD group to the SQL sysadm group, but I haven't tested this. guessing that we'd need to enable SQL auth to make it work.
+      - /SQLSVCSTARTUPTYPE=Automatic
+      - /AGTSVCSTARTUPTYPE=Automatic
+      - /BROWSERSVCSTARTUPTYPE=Automatic
+      #- /SECURITYMODE=SQL  # enable mixed-mode auth
+      #- /SAPWD=Password  # required when securitymode = sql      
+      - /INSTALLSQLDATADIR={{ installsqldatadir }}
+      - /SQLBACKUPDIR={{ sqlbackupdir }}
+      - /SQLTEMPDBDIR={{ sqltempdbdir }}
+      - /SQLTEMPDBLOGDIR={{ sqltempdblogdir }}
+      #- /SQLCOLLATION=UTF-8  # UTF-8 is only available in SQL Server 2019
+      - /TCPENABLED=1  # enable tcp/ip protocol
+      - /NPENABLED=1  # enable named pipes
+      - /UpdateEnabled=0  # disable updates
+      - /INDICATEPROGRESS  # supposedly would write progress to the log?  doesn't write progress in real-time, so not exactly ideal
+      - /SUPPRESSPRIVACYSTATEMENTNOTICE  
+      - /IACCEPTSQLSERVERLICENSETERMS
+    state: present
+
+- name: Unmount SQL Server Installation Media
+  win_disk_image:
+    image_path: "{{ install_media }}"
+    state: absent

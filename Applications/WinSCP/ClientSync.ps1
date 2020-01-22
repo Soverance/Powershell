@@ -30,7 +30,7 @@ Function LogWrite
 try
 {
     # Load WinSCP .NET assembly
-    Add-Type -Path "C:\Scripts\PowerShell\Applications\WinSCP\WinSCP-5.13.4-Automation\WinSCPnet.dll"
+    Add-Type -Path "C:\Scripts\PowerShell\Applications\WinSCP\WinSCP-5.15.3-Automation\WinSCPnet.dll"
 
     # Setup session options
     $sessionOptions = New-Object WinSCP.SessionOptions -Property @{

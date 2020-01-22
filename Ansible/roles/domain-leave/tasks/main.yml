@@ -1,0 +1,14 @@
+---
+- name: Domain Leave
+  win_domain_membership:
+    workgroup_name: "Workgroup"
+    domain_admin_user: "{{ domain_join_admin_user }}"
+    domain_admin_password: "{{ domain_join_admin_password }}"    
+    state: workgroup
+  register: domain_leave_state
+  notify:
+    - Reboot Windows
+    - Wait for connection
+  tags:
+    - configuration
+    - packages

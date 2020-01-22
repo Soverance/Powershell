@@ -1,0 +1,43 @@
+# update windows firewall
+# this role opens the firewall ports necessary for our clusters
+
+# NOTE:  The WinRM ports 5985 and 5986 should also be opened.  However, those ports should be opened manually during VM template creation, and so they are excluded here
+
+---
+# SMB is used for some file level processes, such as network shares    
+- name: Allow SMB
+  win_firewall_rule:
+    name: SMB
+    localport: 445
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private
+    state: present
+    enabled: yes
+
+# HTTP Gateway
+# primary entry point and API router
+- name: Allow HTTP Gateway
+  win_firewall_rule:
+    name: Web App HTTP Gateway
+    localport: 80
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 
+
+# SSL Gateway
+# SSL entry point and API router
+- name: Allow SSL Gateway
+  win_firewall_rule:
+    name: Web App SSL Gateway
+    localport: 443
+    action: allow
+    direction: in
+    protocol: tcp
+    profiles: domain,private,public
+    state: present
+    enabled: yes 

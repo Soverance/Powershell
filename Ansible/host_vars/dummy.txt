@@ -1,0 +1,9 @@
+This is a dummy file to make sure this directory exists in TFS/ADS artifacts.  
+
+Without this file, the folder would be empty when built by the pipeline, and thus excluded from the final build artifact.  
+
+######################################################
+
+The host_vars directory is used for storing node-specific ansible variable files. 
+
+These typically contain ansible variables that are specific to a certain node within a cluster (i.e., a hostname or something)

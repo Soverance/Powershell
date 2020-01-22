@@ -1,0 +1,7 @@
+---
+- name: Reboot Windows
+  win_reboot:
+  when: domain_leave_state.reboot_required
+
+- name: Wait for connection
+  wait_for_connection:

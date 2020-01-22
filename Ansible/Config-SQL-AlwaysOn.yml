@@ -1,0 +1,10 @@
+- hosts: primary
+  any_errors_fatal: true
+  tasks:
+    - win_ping:
+
+- hosts: primary
+  any_errors_fatal: true
+  roles:       
+    - { role: sql-configure-windows-failover }
+    

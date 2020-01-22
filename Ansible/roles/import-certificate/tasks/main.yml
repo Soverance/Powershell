@@ -1,0 +1,17 @@
+# imports wildcard certificate 
+---
+- name: Copy Wildcard Certificate to Server
+  win_copy:
+      src: "{{ certificate_source_path }}{{ certificate_leaf }}"
+      dest: "{{ certificate_path }}"
+
+- name: Install Wildcard Certificate
+  win_certificate_store:
+    path: "{{ certificate_path }}"
+    state: present
+    password: "{{ certificate_password }}"
+    store_location: LocalMachine
+    key_storage: machine
+  become: yes
+  become_method: runas
+  become_user: "{{ ansible_user }}"

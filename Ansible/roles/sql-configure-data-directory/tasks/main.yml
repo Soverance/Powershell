@@ -1,0 +1,23 @@
+# configures the data directories prior to installation
+# this script assumes a data disk was attached to the template and provisioned as E:\ prior to deployment
+---
+# this command requires the credentials of a domain user 
+- name: Create SQL Data Directory
+  win_file: 
+    path: "{{ installsqldatadir }}"
+    state: directory
+
+- name: Create SQL Backup Directory
+  win_file: 
+    path: "{{ sqlbackupdir }}"
+    state: directory
+
+- name: Create SQL TempDB Directory
+  win_file: 
+    path: "{{ sqltempdbdir }}"
+    state: directory
+
+- name: Create SQL TempDBLog Directory
+  win_file: 
+    path: "{{ sqltempdblogdir }}"
+    state: directory

@@ -1,0 +1,47 @@
+# set netbox entry for node
+# this role creates an entry for a node inside our NetBox management interface
+# NOTE:  Requires Ansible 2.8 or later
+# NOTE:  Requires the "pynetbox" module installed on the node which executes this role... 
+# which means there is no way to easily get this working when targeting an inventory of Windows nodes 
+# to get this working, you would need to install pynetbox on the control node, then create
+# dedicated inventory/variable files + a new playbook to execute this role independent of the cluster configuration playbook
+# https://docs.ansible.com/ansible/latest/modules/netbox_device_module.html
+# https://docs.ansible.com/ansible/latest/modules/netbox_interface_module.html
+# https://docs.ansible.com/ansible/latest/modules/netbox_ip_address_module.html
+
+---
+- name: Create Virtual Machine Device
+  netbox_device:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ computer_hostname }}"
+      device_type: AutoCluster Node
+      device_role: AutoCluster Node
+      site: "{{ netbox_site }}"
+      cluster: "{{ netbox_cluster }}"
+      tags:
+        - AutoCluster
+        - "{{ cluster_identifier }}"
+    state: present
+
+- name: Create Interface for VM
+  netbox_interface:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      device: "{{ computer_hostname }}"
+      name: "{{ computer_nic }}"
+    state: present
+
+- name: Attach IP Address to Interface
+  netbox_ip_address:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      prefix: "{{ computer_CIDR }}"
+      vrf: Global
+      interface:
+        name: "{{ computer_nic }}"
+        device: "{{ computer_hostname }}"
+    state: new
