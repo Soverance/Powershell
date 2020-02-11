@@ -14,9 +14,9 @@ param (
     [string]$dnsname = $(throw "- A valid DNS hostname must be specified.")
 )
 
-$crt = $destination + $dnsname + ".crt.pem"
-$key = $destination + $dnsname + ".key.pem"
-$intermediate = $destination + $dnsname + ".intermediate.pem"
+$crt = $destination + "\" + $dnsname + ".crt.pem"
+$key = $destination + "\" + $dnsname + ".key.pem"
+$intermediate = $destination + "\" + $dnsname + ".intermediate.pem"
 
 Write-Host "File to Export: " $($crt) -foregroundcolor black -backgroundcolor white
 Write-Host "File to Export: " $($key) -foregroundcolor black -backgroundcolor white
