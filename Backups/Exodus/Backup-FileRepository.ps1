@@ -38,10 +38,18 @@ param(
 try
 {
     $ErrorActionPreference = "stop"
+
+     # check to see if the robocopy log file already exists - if not, create it
+    if (!(Test-Path $Logfile))
+    {
+        New-Item -Force -Path $Logfile
+    }
     
     Write-EventLog -LogName $logName -Source $source -EntryType Information -EventID 2000 -Message "RoboCopy Mirror Initiated: $($fileShare) to $($destination)"
 
-    robocopy $fileShare $destination /COPYALL /B /SEC /MIR /R:0 /W:0 /NFL /NDL /TEE /LOG:$logFile 
+    # view all robocopy options here:
+    # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
+    robocopy $fileShare $destination /COPYALL /B /SEC /MIR /R:0 /W:0 /TS /FP /NP /LOG:$logFile 
 }
 catch
 {
