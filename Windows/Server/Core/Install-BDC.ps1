@@ -6,7 +6,7 @@
 
 # Use this script as a technical document to help configure Server Core installations.  I tend to run these cmdlets in order.
 
-# On a blank server that has been recently joined to the domain...
+# This script is for installing a secondary domain controller on a blank server
 
 # Install the AD-Domain Services feature
 Install-WindowsFeature AD-Domain-Services -IncludeManagementTools

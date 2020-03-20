@@ -3,6 +3,8 @@
 #
 # A simple script to convert all .mkv files in a directory into .avi files
 
+# view the ffmpeg documentation for more info:  https://ffmpeg.org/ffmpeg.html
+
 function Write-Log 
     { 
         param
@@ -10,7 +12,7 @@ function Write-Log
             [string]$strMessage
         )
 
-            $LogDir = 'B:\venture7'
+            $LogDir = 'D:\Downloads\Kari'
             $Logfile = "\Conversion-Log.txt"
             $Path = $logdir + $logfile
             [string]$strDate = get-date
@@ -18,16 +20,20 @@ function Write-Log
 }
 
 
-$SearchPath = "B:\venture7"
+$SearchPath = "D:\Downloads\Kari"
 
-$oldVideos = Get-ChildItem -Include @("*.mkv") -Path $SearchPath -Recurse;
+$oldVideos = Get-ChildItem -Include @("*.mp4") -Path $SearchPath -Recurse;
 
 Set-Location -Path 'D:\Repository\Software\ffmpeg-3.4.1-win64-static\bin';
 
 foreach ($OldVideo in $oldVideos) 
 {
-    $newVideo = [io.path]::ChangeExtension($OldVideo.FullName, '.avi')
-    & "D:\Repository\Software\ffmpeg-3.4.1-win64-static\bin\ffmpeg.exe" -i $($OldVideo) -c:v copy -c:a copy $($NewVideo) -bsf:v h264_mp4toannexb
+    $newVideo = [io.path]::ChangeExtension($OldVideo.FullName, '.mkv')
+    $frameRate = 30
+    # this cmd is for converting standard videos into MP4 format
+    #& "D:\Repository\Software\ffmpeg-3.4.1-win64-static\bin\ffmpeg.exe" -i $($OldVideo) -c:v copy -c:a copy $($NewVideo) -bsf:v h264_mp4toannexb -r $($frameRate)
+    # this cmd is for converting semi-corrupted video into a lossless AVI format
+    & "D:\Repository\Software\ffmpeg-3.4.1-win64-static\bin\ffmpeg.exe" -fflags +genpts -err_detect ignore_err -i $($OldVideo) -c:v libx264 -preset veryslow -qp 0 $($NewVideo) 
     $OriginalSize = (Get-Item $OldVideo).length 
     $ConvertedSize = (Get-Item $Newvideo).length 
     [long]$Lbound = [Math]::Ceiling($OriginalSize * .85);
