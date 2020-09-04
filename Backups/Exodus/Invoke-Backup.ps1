@@ -109,8 +109,8 @@ try
     if ($sendEmail)
     {
         $Subject = "Exodus Backup Automation Summary"
-        $SmtpUser = "support@soverance.net"
-        $SmtpPassword = "Hauteclaire00"
+        $SmtpUser = "someemail@soverance.net"
+        $SmtpPassword = "somepassword"
         #$SmtpServer = "smtp.office365.com"
         $SmtpServer = "soverance-com.mail.protection.outlook.com"
         #$SmtpPort = "587"
@@ -125,7 +125,6 @@ try
         $mailBody += "<b>========================================================</b><br>"
         $mailBody += "See the log file on $($hyperHost) for complete robocopy details @ $($repositoryLogFile)<br>"
 
-        # this is a great way to turn robocopy output strings into HTML
         $repositoryLogHtml = @"
         <html>
         <head><title>Exodus RoboCopy of Soverance File Repository</title></head>
@@ -141,7 +140,6 @@ try
         $mailBody += "<b>========================================================</b><br>"
         $mailBody += "See the log file on $($hyperHost) for complete Hyper-V details @ $($hyperVLogFile)<br>"
 
-        # this is a great way to turn robocopy output strings into HTML
         $hyperVLogHtml = @"
         <html>
         <head><title>Exodus Backup of Soverance Hyper-V Cluster</title></head>

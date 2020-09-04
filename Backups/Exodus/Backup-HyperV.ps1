@@ -84,10 +84,11 @@ try
         $msgBody += $vmStatus = "Status:  $($vm.Status)`r`n"
         $msgBody += $vmReplicationState = "Replication State:  $($vm.ReplicationState)`r`n"
         $msgBody += $vmGeneration = "Generation:  $($vm.Generation)`r`n"
-        $msgBody += $vmDiskPath = "Disk Path:  $($vm.Path)`r`n"
+        $diskPath = (Get-VMHardDiskDrive -VMName $vm.Name).Path
+        $msgBody += $vmDiskPath = "Disk Path:  $($diskPath)`r`n"
 
         Write-EventLog -LogName $logName -Source $source -EntryType Information -EventID 3001 -Message $msgBody
-        Write-Output $msgBody
+        Write-Output $msgBody | Out-Default -Transcript
 
         # clear the message body from memory after writing it to event log
         $msgBody = ""
@@ -99,7 +100,7 @@ try
         {
 	        # log backup progress - REMOVED FROM EVENT LOG TO AVOID CLUTTER - we still write progress to the full log
 	        $message = "[JOB] $($vm.Name) export progress: $($ExportJob.Progress.PercentComplete)% complete."
-            Write-Output $message
+            Write-Output $message | Out-Default -Transcript
 	        #Write-EventLog -LogName "Exodus Event Log" -Source "Exodus Source" -EventID 3002 -EntryType Information -Message $message
 	        Start-Sleep(60)
         }
@@ -107,14 +108,14 @@ try
         if ($ExportJob.State -ne "Completed")
         {
 	        $message = "[JOB] $($vm.Name) export job did not complete.  STATUS: $($ExportJob.State)"
-            Write-Output $message
+            Write-Output $message | Out-Default -Transcript
 	        Write-EventLog -LogName $logName -Source $source -EntryType Error -EventID 3902 -Message $message
         }
 
         if ($ExportJob.State -eq "Completed")
         {
 	        $message = "[JOB] $($vm.Name) export job has finished with status:  $($ExportJob.State)"
-            Write-Output $message
+            Write-Output $message | Out-Default -Transcript
 	        Write-EventLog -LogName $logName -Source $source -EntryType Information -EventID 3003 -Message $message
         }
         #endregion
@@ -142,7 +143,7 @@ try
     $backups = Get-ChildItem -Path $destination    
     Write-EventLog -LogName $logName -Source $source -EntryType Information -EventID 3004 -Message "Cluster backup retention limit set to $($backupLimit) days.  All backups older than $($backupLimit) days are considered expired, and will be destroyed."
     $backups | Where-Object { $_.lastwritetime -le (Get-Date).AddDays(-$backupLimit)} | ForEach-Object {Remove-Item $_.FullName -Force -Recurse
-            Write-Output "[CLEANUP] Removing Backup:  $($_.FullName)"
+            Write-Output "[CLEANUP] Removing Backup:  $($_.FullName)" | Out-Default -Transcript
             Write-EventLog -LogName $logName -Source $source -EntryType Warning -EventID 3500 -Message "Removing Backup:  $($_.FullName)"
     }
 
@@ -152,7 +153,7 @@ try
 }
 catch
 {
-    Write-Output "[ERROR] Error in $($MyInvocation.MyCommand) on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
+    Write-Output "[ERROR] Error in $($MyInvocation.MyCommand) on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)" | Out-Default -Transcript
     Write-EventLog -LogName $logName -Source $source -EntryType Error -EventID 3901 -Message "ERROR in $($MyInvocation.MyCommand) on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
     exit 1
 }
